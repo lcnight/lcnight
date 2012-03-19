@@ -1,0 +1,19 @@
+#! /bin/bash
+#host=10.1.1.5
+name='newsfeed'
+password='newsfeed@pwd'
+
+if [ $# -lt 4 ] ; then
+    echo "alterdb dbhost start_idx end_idx <db_script_file>";
+    exit;
+fi;
+
+echo "db host:$1, name:$name, password:$password";
+for((i=$2;i<$3;i++)); do
+    echo "index  $i, exec in database: db_newsfeed_$i";
+    echo "exec: mysql -h$1 -u$name -p$password --default-character-set=utf8 -Ddb_newsfeed_$i < $4"
+    mysql -h$1 -u$name -p$password --default-character-set=utf8 -D"db_newsfeed_$i" < "$4"
+    echo;
+done;
+
+#mysql -ulc -plcta0mee -D"db_newsfeed_$i" < tmp.sql

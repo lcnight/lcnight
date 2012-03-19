@@ -1,0 +1,31 @@
+#! /bin/bash
+host=10.1.1.60
+name=root
+password=ta0mee
+
+if [ $# -lt 0 ] ; then
+    echo "to be execute sql script in each database table";
+    exit;
+fi;
+get_db()
+{
+    echo "create database db_map_$1 DEFAULT CHARACTER SET utf8;"
+}
+get_table() 
+{
+    echo "CREATE TABLE db_map_$1.t_map_$2 ( id int(11) NOT NULL auto_increment, md5sum char(32) NOT NULL, string varchar(4096) NOT NULL, PRIMARY KEY  (id), UNIQUE KEY md5sum (md5sum)) ENGINE=InnoDB AUTO_INCREMENT=57842 DEFAULT CHARSET=utf8;";
+}
+
+db_num=100
+tb_num=100
+echo "db host:$host, name:$name, password:$password";
+for((i=0;i<$db_num;i++)); do
+    echo;
+    echo "target is db id $i";
+    mysql -h$host -u$name -p$password -e "$(get_db $i)";
+    for((j=0;j<$tb_num;j++)); do
+        #echo "mysql -h$host -u$name -p$password --default-character-set=utf8 -e $(get_table $i $j)";
+        echo -e "\ttable id $j";
+        mysql -h$host -u$name -p$password -e "$(get_table $i $j)";
+    done;
+done;

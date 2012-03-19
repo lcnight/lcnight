@@ -1,0 +1,26 @@
+#! /bin/bash
+host=10.1.1.5
+name=root
+password=ta0mee
+
+if [ $# -lt 0 ] ; then
+    echo "to be execute sql script in each database table";
+    exit;
+fi;
+get_sql() 
+{
+    #echo "alter table db_newsfeed_$1.t_pass_newsfeed_$2 ADD COLUMN p_magic int(11) unsigned not NULL comment '被动feed的magic' after target_id;";
+    #echo "alter table db_newsfeed_$1.t_newsfeed_$2 change id id int(11) unsigned not NULL auto_increment primary key first; alter table db_newsfeed_$1.t_pass_newsfeed_$2 ADD COLUMN id int(11) unsigned not NULL auto_increment primary key first;";
+    echo "delete from db_newsfeed_$1.t_newsfeed_$2 where timestamp <= 1316188800 and cmd_id = 7002;";
+}
+
+db_num=100
+tb_num=100
+echo "db host:$host, name:$name, password:$password";
+for((i=0;i<$db_num;i++)); do
+    for((j=0;j<$tb_num;j++)); do
+        echo "mysql -h$host -u$name -p$password --default-character-set=utf8 -e $(get_sql $i $j)";
+        mysql -u$name -p$password --default-character-set=utf8 -e "$(get_sql $i $j)";
+        echo;
+    done;
+done;
