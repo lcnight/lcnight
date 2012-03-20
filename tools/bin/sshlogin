@@ -1,0 +1,17 @@
+#! /bin/bash
+
+if [[ $# < 1 ]]; then
+    echo "usage: `basename $0` ip-token"
+fi
+
+case $1 in
+    1.103)
+    echo "login to wikisearch@10.1.1.103";
+    ssh wikisearch@10.1.1.103
+    ;;
+    1.44)
+    echo "login to lc@10.1.1.44";
+    ssh lc@10.1.1.44
+    ;;
+esac
+

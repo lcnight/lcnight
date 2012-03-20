@@ -1,0 +1,7 @@
+#! /bin/bash
+
+if [[ $# > 0 ]]; then
+    mkdir "$(date +%F)-$1"
+else
+    mkdir `date +%F`;
+fi

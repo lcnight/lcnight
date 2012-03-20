@@ -1,0 +1,52 @@
+#! /usr/bin/php5
+<?php 
+function help()
+{
+    echo <<<l00000000l
+conv_time.php [options] [timestamp|datetime]
+1. timestamp is unix timestamp, and convert to localtime readable
+    eg. 1313632358 => 2011-08-18 09:52:38 AM
+2. convert local datetime to unix timestamp,
+    eg. 2011-08-18 09:52:38 AM => 1313632358
+
+l00000000l;
+}
+
+function show2(&$tt)
+{
+    echo "timestamp   $tt\n";
+    echo "datetime    ".date('Y-m-d H:i:s A', $tt)."\n";
+}
+
+if($argc < 2) {
+    help();
+    echo "\n".'current:'."\n";
+    show2(time());
+    return;
+}
+
+$timestamp = time();
+$datetime = localtime($timestamp, 1);
+
+$opt = 1;
+$split = strpbrk($argv[1], '-. ');
+if ($split) {
+    $opt = 2;
+}
+//var_dump($timestamp);
+switch ($opt)
+{
+case 1 :
+    $timestamp = intval($argv[1]);
+    show2($timestamp);
+    break;
+case 2 :
+    $timestamp = strtotime("$argv[1]");
+    show2($timestamp);
+    break;
+default :
+    echo 'system error'. PHP_EOL;
+    break;
+}  ///* end of switch */
+
+?>

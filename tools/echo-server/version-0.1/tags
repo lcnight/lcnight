@@ -1,0 +1,128 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+BACKLOG	_bakdir/echo_server.cpp	33;"	d	file:
+BACKLOG	_bakdir/echo_server_thread.cpp	32;"	d	file:
+BACKLOG	echo_server.cpp	38;"	d	file:
+BACKLOG	echo_server_thread.cpp	32;"	d	file:
+BACKLOG	echosrv.cpp	38;"	d	file:
+BUF_SIZE	_bakdir/echo_client.cpp	37;"	d	file:
+BUF_SIZE	_bakdir/echo_server.cpp	37;"	d	file:
+BUF_SIZE	_bakdir/echo_server_thread.cpp	36;"	d	file:
+BUF_SIZE	echo_client.cpp	38;"	d	file:
+BUF_SIZE	echo_server.cpp	42;"	d	file:
+BUF_SIZE	echo_server_thread.cpp	36;"	d	file:
+D_L	_bakdir/echo_server.cpp	49;"	d	file:
+D_L	_bakdir/echo_server_thread.cpp	40;"	d	file:
+D_L	echo_server.cpp	95;"	d	file:
+D_L	echo_server_thread.cpp	40;"	d	file:
+D_L	echosrv.cpp	114;"	d	file:
+E_TIMEOUT	echosrv.cpp	285;"	d	file:
+FLAG	Makefile	/^FLAG=-g$/;"	m
+FLAG	Makefile	/^debug:FLAG=-g -DDEBUG$/;"	m
+HOST	_bakdir/echo_client.cpp	35;"	d	file:
+HOST	echo_client.cpp	36;"	d	file:
+LOG	echosrv.cpp	115;"	d	file:
+MAXCLIENTS	_bakdir/echo_server.cpp	41;"	d	file:
+MAXCLIENTS	echo_server.cpp	46;"	d	file:
+MAXCLIENTS	echosrv.cpp	47;"	d	file:
+MAXEVENTS	_bakdir/echo_server.cpp	39;"	d	file:
+MAXEVENTS	echo_server.cpp	44;"	d	file:
+MAXEVENTS	echosrv.cpp	45;"	d	file:
+MAX_BUFSZ	echosrv.cpp	43;"	d	file:
+PORT	_bakdir/echo_client.cpp	36;"	d	file:
+PORT	_bakdir/echo_server.cpp	35;"	d	file:
+PORT	_bakdir/echo_server_thread.cpp	34;"	d	file:
+PORT	echo_client.cpp	37;"	d	file:
+PORT	echo_server.cpp	40;"	d	file:
+PORT	echo_server_thread.cpp	34;"	d	file:
+PORT	echosrv.cpp	40;"	d	file:
+STAT	echosrv.cpp	/^}STAT = {$/;"	v	typeref:struct:__anon1	file:
+TARGET	Makefile	/^TARGET=echo_server echo_client$/;"	m
+TIMEOUT	echo_server.cpp	48;"	d	file:
+TIMEOUT	echosrv.cpp	49;"	d	file:
+as_func_failure	_bakdir/configure	/^as_func_failure () {$/;"	f
+as_func_ret_failure	_bakdir/configure	/^as_func_ret_failure () {$/;"	f
+as_func_ret_success	_bakdir/configure	/^as_func_ret_success () {$/;"	f
+as_func_success	_bakdir/configure	/^as_func_success () {$/;"	f
+atime	echosrv.cpp	/^    uint32_t atime;$/;"	m	class:connection	file:
+blk_list	echo_server.cpp	/^std::map<int, blk_try_t> blk_list;$/;"	v
+blk_list_iter	echo_server.cpp	/^typedef std::map<int, blk_try_t>::iterator blk_list_iter;$/;"	t	file:
+blk_time	echo_server.cpp	/^    time_t blk_time;$/;"	m	struct:block_try	file:
+blk_try_t	echo_server.cpp	/^} blk_try_t;$/;"	t	typeref:struct:block_try	file:
+block_try	echo_server.cpp	/^    block_try(): fd(-1), blk_time(0), buf(0), len(0), offset(0) {$/;"	f	struct:block_try
+block_try	echo_server.cpp	/^    block_try(const struct block_try & blk) {$/;"	f	struct:block_try
+block_try	echo_server.cpp	/^typedef struct block_try {$/;"	s	file:
+buf	_bakdir/echo_server.cpp	/^char buf[BUF_SIZE]; \/\/2K buffer$/;"	v
+buf	echo_server.cpp	/^    char* buf;$/;"	m	struct:block_try	file:
+buf	echo_server.cpp	/^char buf[BUF_SIZE] = {0}; \/\/2K buffer$/;"	v
+closeclient	_bakdir/echo_server.cpp	/^void closeclient(int epfd, int fd)$/;"	f
+closeclient	_bakdir/echo_server_thread.cpp	/^void closeclient( int fd)$/;"	f
+closeclient	echo_server.cpp	/^void closeclient(int epfd, int fd)$/;"	f
+closeclient	echo_server_thread.cpp	/^void closeclient( int fd)$/;"	f
+closeclient	echosrv.cpp	/^void closeclient(int epfd, int fd)$/;"	f
+closing	_bakdir/echo_server.cpp	/^int closing = 0; \/\/control continue recieve client connection$/;"	v
+closing	_bakdir/echo_server_thread.cpp	/^int closing = 0; \/\/control continue recieve client connection$/;"	v
+closing	echo_client.cpp	/^int closing = 0;$/;"	v
+closing	echo_server.cpp	/^int closing = 0; \/\/control continue recieve client connection$/;"	v
+closing	echo_server_thread.cpp	/^int closing = 0; \/\/control continue recieve client connection$/;"	v
+closing	echosrv.cpp	/^static int closing = 0;$/;"	v	file:
+conn_add	echosrv.cpp	/^void conn_add(int fd) {$/;"	f
+conn_amount	_bakdir/echo_server.cpp	/^int conn_amount = 0; \/\/ current connection amount$/;"	v
+conn_amount	_bakdir/echo_server_thread.cpp	/^int conn_amount = 0; \/\/ current connection amount$/;"	v
+conn_amount	echo_server.cpp	/^int conn_amount = 0; \/\/ current connection amount$/;"	v
+conn_amount	echo_server_thread.cpp	/^int conn_amount = 0; \/\/ current connection amount$/;"	v
+conn_amount	echosrv.cpp	/^    int conn_amount;$/;"	m	struct:__anon1	file:
+conn_list	echosrv.cpp	/^conn_list_t conn_list;$/;"	v
+conn_list_iter	echosrv.cpp	/^typedef std::map<int, connection>::iterator conn_list_iter;$/;"	t	file:
+conn_list_t	echosrv.cpp	/^typedef std::map<int, connection> conn_list_t;$/;"	t	file:
+conn_release	echosrv.cpp	/^void conn_release(int fd) {$/;"	f
+conn_t	echosrv.cpp	/^} conn_t;$/;"	t	typeref:class:connection	file:
+connection	echosrv.cpp	/^    connection(): fd(-1), atime(0), rbuf(0), rsize(0), wbuf(0), wsize(0) {$/;"	f	class:connection
+connection	echosrv.cpp	/^    connection(const connection &rhs) {$/;"	f	class:connection
+connection	echosrv.cpp	/^    connection(int fd): fd(fd), atime(0), rbuf(0), rsize(0), wbuf(0), wsize(0) {$/;"	f	class:connection
+connection	echosrv.cpp	/^typedef class connection {$/;"	c	file:
+destroy	echosrv.cpp	/^    void destroy() {$/;"	f	class:connection
+do_echo	_bakdir/echo_server.cpp	/^void do_echo(int epfd, int fd)$/;"	f
+do_echo	_bakdir/echo_server_thread.cpp	/^void* do_echo(void* fds)$/;"	f
+do_echo	echo_server.cpp	/^void do_echo(int epfd, int fd)$/;"	f
+do_echo	echo_server_thread.cpp	/^void* do_echo(void* fds)$/;"	f
+fd	echo_server.cpp	/^    int fd;$/;"	m	struct:block_try	file:
+fd	echosrv.cpp	/^    int fd;$/;"	m	class:connection	file:
+get_buf	echo_server.cpp	/^    char* get_buf() {$/;"	f	struct:block_try
+init	echosrv.cpp	/^    inline void init() {$/;"	f	class:connection	file:
+len	echo_server.cpp	/^    int len;$/;"	m	struct:block_try	file:
+main	_bakdir/echo_client.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	_bakdir/echo_server.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	_bakdir/echo_server_thread.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	echo_client.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	echo_server.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	echo_server_thread.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	echosrv.cpp	/^int main(int argc, char *argv[])$/;"	f
+mysignal	echo_client.cpp	/^int mysignal(int sig, void(*signal_handler)(int))        $/;"	f
+mysignal	echo_server.cpp	/^int mysignal(int sig, void(*signal_handler)(int))$/;"	f
+offset	echo_server.cpp	/^    int offset;$/;"	m	struct:block_try	file:
+prototypes	_bakdir/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
+rbuf	echosrv.cpp	/^    char *rbuf;$/;"	m	class:connection	file:
+register_sig	echosrv.cpp	/^int register_sig(int sig, void(*signal_handler)(int))$/;"	f
+release	echosrv.cpp	/^    inline void release() {$/;"	f	class:connection	file:
+release_buf	echo_server.cpp	/^    void release_buf() {$/;"	f	struct:block_try
+retry_send	echo_server.cpp	/^void retry_send(int epfd)$/;"	f
+rsize	echosrv.cpp	/^    int rsize;$/;"	m	class:connection	file:
+setkeepalive	echo_server.cpp	/^int setkeepalive(int rs) {$/;"	f
+setkeepalive	echosrv.cpp	/^int setkeepalive(int rs) {$/;"	f
+setnonblocking	_bakdir/echo_server.cpp	/^void setnonblocking(int fd)$/;"	f
+setnonblocking	_bakdir/echo_server_thread.cpp	/^void setnonblocking(int fd)$/;"	f
+setnonblocking	echo_server.cpp	/^int setnonblocking(int fd)$/;"	f
+setnonblocking	echo_server_thread.cpp	/^void setnonblocking(int fd)$/;"	f
+setnonblocking	echosrv.cpp	/^int setnonblocking(int fd)$/;"	f
+sig_urg	_bakdir/echo_server.cpp	/^void sig_urg(int signo)$/;"	f
+signal_handler	_bakdir/echo_server.cpp	/^static void signal_handler(int sig)                            $/;"	f	file:
+signal_handler	echo_client.cpp	/^static void signal_handler(int sig)                      $/;"	f	file:
+signal_handler	echo_server.cpp	/^static void signal_handler(int sig)                            $/;"	f	file:
+signal_handler	echosrv.cpp	/^static void signal_handler(int sig)$/;"	f	file:
+wbuf	echosrv.cpp	/^    char *wbuf;$/;"	m	class:connection	file:
+wsize	echosrv.cpp	/^    int wsize;$/;"	m	class:connection	file:

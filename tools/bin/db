@@ -1,0 +1,21 @@
+#! /bin/bash
+
+if [[ $# < 1 ]]; then
+    echo "db internal-ip [database]"
+    exit
+fi
+
+host=''
+
+if [[ $1 =~  '.' ]]; then
+    host="$1"
+else
+    host="10.1.1.$1"
+fi
+
+db=${2:-"mysql"}
+
+conn_str="mysql -h$host -uroot -pta0mee -D\"$db\" --default-character-set=\"utf8\" --prompt=\"\u@\d:\h mysql>\""
+
+echo $conn_str
+#eval $conn_str
