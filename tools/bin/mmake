@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [[ $# < 1 ]];then
+    echo "Usage: `basename $0` exe-name [extra-options]"
+    exit 1;
+fi
+
+#CFLAG='-Wall -O -ggdb $2'
+CFLAG="-Wall -ggdb $2"
+run_str='';
+
+if [[ -e "$1.c" ]]; then
+    run_str="gcc $CFLAG $1.c -o $1"
+elif [[ -e "$1.cpp" ]]; then
+    run_str="g++ $CFLAG $1.cpp -o $1"
+else
+    echo "warning: can not found $1.c/$1.cpp"
+    exit 0;
+fi
+
+echo "$run_str";
+eval "$run_str";
