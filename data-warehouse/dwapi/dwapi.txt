@@ -1,0 +1,29 @@
+overview
+/// ?op=<value>&param
+/// op:     operation type
+/// param:  operation parameter, comma separated
+//  error code: 0 => result OK
+//              1 => parameter missing
+//              2 => parameter error
+//              3 => not support operation
+
+1. 获得某一天的在线时间
+//  op      get_on_dur  # get online duration
+//          day         # example: 2012-04-18
+//          mimi        # example: 98900033
+//  result  {"c": err_code, "time": total_seconds}
+note:
+    返回某一帐号（所有帐号）在某一天的在线时间（秒）
+
+
+2. 获取所有天的在线时间
+//  op      get_all_dur # get all days online duration 
+//          mimi        # example: 98900033 
+//          result      {"c": err_code, "alldays":
+//                      [{"CharacterID":"33214047252077409",
+//                      "time":"20120413","OnlineDuration":"41212"},
+//                      ...]}
+note:
+    列出该帐号下，所有角色在某一天的在线时间（秒）,若某一天没有在线,
+    在返回的结果中不存在改天数据，则当天的在线时间为0
+

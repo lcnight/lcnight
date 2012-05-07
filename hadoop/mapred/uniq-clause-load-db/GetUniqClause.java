@@ -150,16 +150,18 @@ public class GetUniqClause extends Configured implements Tool {
         line = line.substring(beg + 1);
         String[] clause = line.split(":");
 
-        if (clause.length < 15) {
-            Counter malcnt = context.getCounter("mygroup", "counter");
+        if (clause.length < 15 || clause.length > 17 ) {
+            Counter malcnt = context.getCounter("Error", "error_format");
             malcnt.increment(1);
-            System.err.printf("splitted clauses num %d < 15:%s\n", clause.length, line);
+            System.err.printf("splitted %d not in [15, 17] %s\n", clause.length, line);
             return;
         }
 
         word.set("game", clause[0]); // game name
         context.write(word, one); 
         word.set("version", clause[1]); // game version
+        context.write(word, one); 
+        word.set("gtok", String.format("%s(%s)",clause[0], clause[1])); // gtok
         context.write(word, one); 
         word.set("channel", clause[2]); // channel
         context.write(word, one); 
@@ -168,6 +170,8 @@ public class GetUniqClause extends Configured implements Tool {
         word.set("OS", clause[5]); // OS type
         context.write(word, one); 
         word.set("firmversion", clause[6]); // firmware version
+        context.write(word, one); 
+        word.set("dtok", String.format("%s(%s)",clause[4], clause[6])); // dtok
         context.write(word, one); 
         word.set("resolution", clause[7]); // resolution
         context.write(word, one); 
@@ -218,7 +222,8 @@ public class GetUniqClause extends Configured implements Tool {
         
     job.setInputFormatClass(TextInputFormat.class);
     job.setOutputFormatClass(TextOutputFormat.class);
-    TextInputFormat.addInputPath(job, new Path(args[0]));
+    //TextInputFormat.addInputPath(job, new Path(args[0]));
+    TextInputFormat.addInputPaths(job, args[0]);
     TextOutputFormat.setOutputPath(job, new Path(args[1]));
         
     job.waitForCompletion(true);
@@ -227,11 +232,12 @@ public class GetUniqClause extends Configured implements Tool {
 
  public static void main(String args[]) throws Exception
  {
-     if (args.length != 4) {
+     if (args.length < 3) {
          System.err.println("Usage: GetUniqClause <input-dir> <out-dir> -<m|d|b> <db-options>\n" + 
-                 "\t-m\tonly do map reduce operation\n" + 
-                 "\t-d\tonly do database operation\n" +
-                 "\t-b\tdo both mapred and database operation\n\n" + 
+                 "\tinput-dir   for mutli paths, separated by comma(,)\n" +
+                 "\t-m          only do map reduce operation\n" + 
+                 "\t-d          only do database operation\n" +
+                 "\t-b          do both mapred and database operation\n\n" + 
                  "\tdb options example:\n\tuser:password@ip[:port]/database"
                  );
          System.exit(-1);
@@ -249,16 +255,20 @@ public class GetUniqClause extends Configured implements Tool {
      int ret = 0;
      if (do_mapred) {
          ToolRunner.run(new Configuration(), new GetUniqClause(), args);
-         System.err.printf("\nmapred end with code: %d\n", ret);
+         System.err.printf("\nmapred end with code: %d\n\n", ret);
          if (ret != 0) {
              System.exit(ret);
          }
      }
 
      if (do_db) {
-         System.out.println("load unique phrase into database table\n");
+         if (args.length != 4) {
+             System.err.println("db-option maybe not provided\n");
+             System.exit(2);
+         }
+         System.out.println("loading unique phrase into database table\n");
          ret = buildEnv.setup_env(args[1], args[3]);
-         System.err.printf("\ndatabase load end with code: %d\n", ret);
+         System.err.printf("\ndatabase load end with code: %d\n\n", ret);
          System.exit(ret);
      }
  }

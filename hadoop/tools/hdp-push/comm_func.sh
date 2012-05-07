@@ -4,6 +4,33 @@ b_b="\e[1;34;40m"   # blue
 end="\e[0m";        # escape end
 #echo -e "$r_b aaa $end"
 
+VERBOSE=1
+Debug () {
+    if [ $VERBOSE -eq 1 ]; then 
+        echo -e "[`date '+%F %T'`] $*"; 
+    fi
+}
+Info () {
+    echo -e "[`date '+%F %T'`] $*" ;
+}
+
+# space separated mail list
+recip='lc@taomee.com'
+SendMail () {
+    errSubject="$1"
+    errMsg="$2"
+    Info "mail -s '$errSubject'"
+    echo -e "$errMsg" | mail -s "$errSubject" $recip
+}
+CheckResult ()
+{ # 1(code) 2(subject) 3(errMsg)
+    if [[ $# < 1 ]];then return 0; fi
+    if [[ $1 != 0 ]]; then
+        SendMail "$2" "$3"
+        exit $1
+    fi
+}
+
 function get_day_time() 
 {
     if [[ $# < 1 ]]; then return; fi

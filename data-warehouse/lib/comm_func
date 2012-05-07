@@ -1,0 +1,22 @@
+Msg () {
+	if [ $debug -eq 1 ]; then echo -e [`date '+%F %T'`] $* ; fi
+}
+
+get_childs()
+{
+    myid="$1"
+    if [[ -z "$myid" ]]; then return; fi
+    tmplist=`ps -eo pid,ppid | grep $myid | grep -v -E "^ $myid|\<ps\>|\<grep\>" | awk '{print $1}'`
+    #echo "$tmplist"
+    mylist=''
+    for i in $tmplist; do
+        kill -0 $i
+        if [[ $? == 0 ]]; then 
+            mylist="$mylist $i"
+        fi
+    done
+    echo "$mylist"
+}
+#childlist=`get_childs $$`
+#Msg "wait stoped pid: $childlist"
+#wait $childlist

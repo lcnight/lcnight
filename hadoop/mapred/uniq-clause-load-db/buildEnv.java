@@ -4,6 +4,7 @@ import java.util.*;
 
 public class buildEnv
 {
+    //private static void Debug();
     private static String get_tmp_path(String prefix, String suffix) {
         String path = String.format("/tmp/%s-%s.%s", prefix, UUID.randomUUID().toString(), suffix);
         return path;
@@ -27,17 +28,17 @@ public class buildEnv
         String password = db_opt.substring(beg, end);
         beg = end + 1;
         String host_db = db_opt.substring(beg);
-        String conn_str = String.format("jdbc:mysql://%s?autoReconnect=true&user=%s&password=%s&useUnicode=true&characterEncoding=utf8", host_db, username, password);
-        System.out.println("opt  string: " + db_opt);
+        String conn_str = String.format("jdbc:mysql://%s?autoReconnect=true&useUnicode=true&characterEncoding=utf8", host_db);
+        System.out.println("opts string: " + db_opt);
         System.out.println("conn string: " + conn_str);
 
         try { 
             Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //conn = DriverManager.getConnection("jdbc:mysql://localhost/test?user=monty&password=greatsqldb");
-            //conn = DriverManager.getConnection(conn_str, username, password);
-            conn = DriverManager.getConnection(conn_str);
+            conn = DriverManager.getConnection(conn_str, username, password);
+            //conn = DriverManager.getConnection(conn_str);
         } catch (SQLException ex) {
             PrintSQLEx(ex);
+            System.exit(0);
         } 
 
         System.out.println("Connect successfully ... ");
@@ -49,6 +50,8 @@ public class buildEnv
         Statement stmt = conn.createStatement();
         while ((line=in.readLine()) != null) {
             String[] cols = line.split("\t");
+
+
             if (cols.length != 3) {
                 System.err.printf("split %s get %d cols, not equal 3\n", line, cols.length);
                 continue;
@@ -89,12 +92,14 @@ public class buildEnv
             String dim_key = cols[1];
             Object obj = dim_map.get(dim_key);
             if (obj != null) {
-                System.err.printf("exists key: %s\n", dim_key);
+                System.err.printf("exists key: '%s'\n", dim_key);
             } else {
-                System.err.printf("insert key: %s\n", dim_key);
+                System.err.printf("insert key: '%s'\n", dim_key);
                 try{
                     if (stmt == null) { stmt = conn.createStatement(); }
-                    stmt.executeUpdate(String.format("insert into %s(%s) values ('%s');", t_dim_tbl, dim_name, dim_key));
+                    String in_sql = String.format("insert into %s(%s) values ('%s');", t_dim_tbl, dim_name, dim_key);
+                    stmt.executeUpdate(in_sql);
+                    System.out.println(in_sql);
                 } catch (SQLException ex) {
                     PrintSQLEx(ex);
                     //if (stmt != null) { stmt.close(); }
@@ -115,9 +120,9 @@ public class buildEnv
     public static int setup_env(String output_dir, String db_opt) throws Exception
     {
         String tmp_file = get_tmp_path("wireless", "ph");
-        String hadoop_merge_cmd = String.format("bin/hadoop fs -getmerge %s %s", output_dir, tmp_file);
+        String hadoop_merge_cmd = String.format("hadoop fs -getmerge %s %s", output_dir, tmp_file);
 
-        System.out.printf("cmd: %s\nfile:%s\n", hadoop_merge_cmd, tmp_file);
+        System.out.printf("command: %s\n", hadoop_merge_cmd);
         Process process = Runtime.getRuntime().exec(hadoop_merge_cmd);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String s;
