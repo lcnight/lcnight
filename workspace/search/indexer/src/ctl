@@ -1,0 +1,37 @@
+#! /bin/bash
+
+if [[ $# < 1 ]]; then
+    echo "Usage: `basename $0` <run|build>"
+    exit
+fi
+
+BIN_NAME=indexer
+BUILD_DIR=../build
+CP_OPTIONS="cp -vuf"
+MK_OPTIONS="mkdir -pf"
+case $1 in
+    r*)
+    ./$BIN_NAME ./conf/idx.conf
+    ;;
+    run)
+    ./$BIN_NAME ./conf/idx.conf
+    ;;
+    build)
+    if [[ ! -e $BUILD_DIR/conf ]]; then
+        $MK_OPTIONS $BUILD_DIR/conf;
+    fi
+    if [[ ! -e $BUILD_DIR/data ]]; then
+        $MK_OPTIONS $BUILD_DIR/data;
+    fi
+    if [[ ! -e $BUILD_DIR/log ]]; then
+        $MK_OPTIONS $BUILD_DIR/log;
+    fi
+    $CP_OPTIONS conf/* $BUILD_DIR/conf/
+    $CP_OPTIONS data/* $BUILD_DIR/data/
+    $CP_OPTIONS $BIN_NAME $BUILD_DIR
+    ;;
+    *)
+    echo 'run default';
+    ;;
+esac
+

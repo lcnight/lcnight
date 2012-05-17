@@ -1,0 +1,29 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+BIN	Makefile	/^BIN		    = idx-cli$/;"	m
+CC	Makefile	/^CC		    = gcc$/;"	m
+CC_OBJS	Makefile	/^CC_OBJS	    = $(patsubst %.c,%.o, $(CC_SRC))$/;"	m
+CC_SRC	Makefile	/^CC_SRC	    = $(wildcard *.c *\/*.c)$/;"	m
+DELIMITER	idxc.cpp	65;"	d	file:
+DOC_TYPE	idxc.cpp	/^const char *DOC_TYPE[] = {$/;"	v
+INCLUDES	Makefile	/^INCLUDES    = -I..\/src$/;"	m
+LIBS	Makefile	/^LIBS	    = -lhiredis$/;"	m
+PROMPT	idxc.cpp	66;"	d	file:
+XX	Makefile	/^XX		    = g++$/;"	m
+XX_FLAGS	Makefile	/^XX_FLAGS    = -Wall -ggdb$/;"	m
+XX_OBJS	Makefile	/^XX_OBJS	    = $(patsubst %.cpp,%.o, $(XX_SRC))$/;"	m
+XX_SRC	Makefile	/^XX_SRC	    = $(wildcard *.cpp *\/*.cpp)$/;"	m
+did	idxc.cpp	/^    uint32_t did;$/;"	m	struct:keyword_index_value	file:
+flag	idxc.cpp	/^    uint32_t flag;          \/\/ denote reverse index relate document title\/content$/;"	m	struct:keyword_index_value	file:
+idx_buf	idxc.cpp	/^static char* idx_buf[4096] = {0};$/;"	v	file:
+idx_item	idxc.cpp	/^static keyword_idx_t idx_item = NULL;$/;"	v	file:
+keyword_idx_st	idxc.cpp	/^}__attribute__((packed)) keyword_idx_st, *keyword_idx_t;$/;"	t	typeref:struct:keyword_index_value	file:
+keyword_idx_t	idxc.cpp	/^}__attribute__((packed)) keyword_idx_st, *keyword_idx_t;$/;"	t	typeref:struct:keyword_index_value	file:
+keyword_index_value	idxc.cpp	/^typedef struct keyword_index_value {$/;"	s	file:
+main	idxc.cpp	/^int main(int argc, char *argv[])$/;"	f
+offset	idxc.cpp	/^    uint32_t offset[0];$/;"	m	struct:keyword_index_value	file:
+show_reply	idxc.cpp	/^void show_reply(redisContext *c, redisReply *reply) $/;"	f

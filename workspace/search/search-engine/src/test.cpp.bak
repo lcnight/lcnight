@@ -1,0 +1,96 @@
+/**
+ * @file test.cpp
+ * @brief
+ * @author jerryshao jerryshao@taomee.com
+ * @version
+ * @date 2011-11-16
+ */
+
+#include <unistd.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+#include <iostream>
+#include <string>
+
+#include <boost/shared_ptr.hpp>
+
+#include "tcp_server.hpp"
+
+int main(int argc, char* argv[])
+{
+    std::string ip_str;
+    u_short port;
+    boost::shared_ptr<tcp_server> tcp_serv_ptr;
+
+    if (argc != 3) {
+        std::cout << "usage: ip port" << std::endl;
+        return 0;
+    } else {
+        ip_str = argv[1];
+        port = atoi(argv[2]);
+    }
+
+    redis_connect_pool redis_connect_pool_inst(2);
+    if (redis_connect_pool_inst.redis_conn_pool_init("10.1.1.60", 6379) < 0) {
+        std::cerr << "redis init failed" << std::endl;
+        return -1;
+    }
+
+    mysql_connect_pool mysql_connect_pool_inst(2);
+    if (mysql_connect_pool_inst.mysql_conn_pool_init("10.1.1.60",
+                                                     3306,
+                                                     "db_filter_doc",
+                                                     "root",
+                                                     "ta0mee",
+                                                     "utf8") < 0) {
+        std::cerr << "mysql init failed" << std::endl;
+        return -1;
+    }
+
+    key_process_engine key_process_engine_inst;
+    char_to_py char_to_py_inst("../conf/py.dat");
+    int redis_table_id = -1;
+
+    pthread_rwlock_t rw_lock;
+    if (pthread_rwlock_init(&rw_lock, NULL) < 0) {
+        std::cout << "pthread_rwlock_init failed" << std::endl;
+        return -1;
+    }
+
+    if (key_process_engine_inst.engine_build(&rw_lock,
+                                             redis_connect_pool_inst.get_next_redis_conn(),
+                                             mysql_connect_pool_inst.get_next_mysql_conn(),
+                                             char_to_py_inst,
+                                             &redis_table_id) < 0) {
+        std::cout << "engine_build failed" << std::endl;
+        return -1;
+    }
+
+    std::cout << "engine build, redis_table_id " << redis_table_id << std::endl;
+
+    std::string url_str("http://wiki.taomee.net/index.php?doc-view-");
+    int redis_cache_table = 2;
+
+    search_kernel search_kernel_inst;
+
+    tcp_serv_ptr.reset(new tcp_server(ip_str,
+                                      port,
+                                      2,
+                                      key_process_engine_inst,
+                                      search_kernel_inst,
+                                      char_to_py_inst,
+                                      redis_connect_pool_inst,
+                                      mysql_connect_pool_inst,
+                                      &rw_lock,
+                                      &redis_table_id,
+                                      redis_cache_table,
+                                      url_str));
+
+    tcp_serv_ptr->run();
+
+    getchar();
+    tcp_serv_ptr->stop();
+
+    return 0;
+}

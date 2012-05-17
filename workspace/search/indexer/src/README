@@ -1,0 +1,48 @@
+## indexer
+## author: lc (lc@taomee.com)
+
+  this indexer application is written for taomee search engine project,
+which is use to filter documents in database of wiki system and build
+index information according dictionary, then store the index to redis
+database, refresh the index according special rules.
+  main algrithom is AC-machine, used to find phrase in filtered document
+according to dictionarys.
+
+
+-------------------------------------------------------------------------
+
+compile this application must include following 3 modules, 
+for handle logging, read ini file, interact with mysql database
+
+realted module:
+  brief discription of the 3 related module,
+  log module:
+      c version log module
+  ini-file module:
+      ini-file-1.1.1 handle reading info from ini file, value store under 
+      section/key
+  mysql-iface module:
+      mysql-iface-1.0.1 handle interaction with mysql database
+ 
+
+build and install:
+  make && make install
+
+
+configuration:
+  refer to the explanation in conf/idx.conf
+
+
+discription needed: 
+    return int value 0 means that the operation success, other return value 
+  refer the corresponding discription;
+    some function return boolean value to denote sucess or fail;
+ 
+Redis format:
+    keyword ::= {<did|type|{offset, ...}>, ...}
+    every field having type uint32_t
+    int redis, keyword with type ZSet
+
+
+bugs and changelog:
+

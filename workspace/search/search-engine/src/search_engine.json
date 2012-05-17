@@ -1,0 +1,60 @@
+
+//获取关键词提示协议json格式
+{
+    "cmd_id" : 2001,
+    "keyword" : "ajfkdaljla"
+}
+
+{
+    "cmd_id" : 2001,
+    "status" : 1,
+    "keyword_hints" : ["aa", "bb", "cc"...] | null
+}
+
+//根据关键字搜索json格式
+{
+    "cmd_id" : 2003,
+    "page_num" : 1,
+    "result_per_page" : 10,
+    "keywords" : ["aa", "bb". "cc"]
+}
+
+{
+    "cmd_id" : 2003,
+    "status" : 1,
+    "search_result_num" : 123,
+    "search_keywords" : ["aa", "bb", "cc"] | null,
+    "snippet" :
+    [
+        {
+            "snippet_url" : "http://xxx.xx.xx",
+            "snippet_title" : "afafafda",
+            "title_offset" :
+                {
+                    aa : [1, 2, 3] | null,
+                    bb : [1, 2, 3] | null
+                } | null,
+            "snippet_content" : "jfdlajflajfdkaljla",
+            "content_offset" :
+                {
+                    aa : [1, 23, 4] | null,
+                    bb : [1, 23, 4] | null,
+                } | null
+
+        },....
+    ],
+
+    "recommend_keywords" : [ "aaa", "bbb", ... ] | null
+}
+
+// 获取关键词推荐json格式 : obsoleted
+{
+    "cmd_id" : 2002,
+    "keywords" : ["aa", "bb", "cc"....]
+}
+
+{
+    "cmd_id" : 2002,
+    "status" : 1,
+    "recommend_keywords" : ["aa", "ff", "fdsa"...] | null
+}

@@ -1,0 +1,106 @@
+代码依赖库: boost_thread, boost_system, json-c 0.9, hiredis, libscws 1.8(分词算
+        法库)
+
+代码结构:
+key-process-engine: 搜索关键词处理模块，对每一个搜索关键词进行拼音处理，错字纠正
+search-kernel: 搜索排序模块，根据搜索关键词处理模块处理的结果从redis中获得相应的
+搜索内容，并对搜索内容进行排序
+server-skeleton: 基于boost asio的多线程服务框架，主线程负责获得新连接并放入工作
+线程，工作线程负责io和业务处理
+utility: 一些基本模块，包括redis和mysql的连接池，拼音转换模块等
+word-segment: 分词模块，封装libscws的分词函数
+
+业务模型:  前端请求------>php webservice-------->搜索服务
+接口：
+1. 获得搜索提示接口
+2. 获得搜索推荐接口
+3. 获得搜索结果接口
+所有接口数据交互方式为json格式
+
+
+-----------------------------------------------------------------------------
+获得搜索提示:
+__request_get_hints(request_handler.h)
+            |
+            |
+            |
+            v
+engine_get_hinted_keys(key_process_engine.h)
+            |
+            |
+            |
+            v
+          return
+
+
+-----------------------------------------------------------------------------
+获得搜索推荐:
+__request_get_recommend(request_handler.h)
+            |
+            |
+            |
+            v
+engine_get_recommend_keys(key_process_engine.h)
+            |
+            |
+            |
+            v
+          return
+
+
+-----------------------------------------------------------------------------
+获得搜索结果:
+__request_get_search(request_handler.h)
+            |
+            |
+            |
+            v
+__redis_put_search_words(request_handler.h)
+将搜索请求存入redis中表2的zset，按搜索频率排序，用以前端提示前10位的搜索关键词
+            |
+            |
+            |
+            v
+segment_word(word_segment_pool.hpp)
+利用分词算法对请求进行分词
+            |
+            |
+            |
+            v
+engine_key_process(key_process_engine.h)
+对每一个分出来的词在关键词处理模块中进行处理
+            |
+            |
+            |
+            v
+kernel_search_process(search_kernel.h)
+对于处理好的词从redis中拉去索引并进行排序处理
+排序策略按照文章中出现搜索关键词的多少划分子集，比如有关键词A, B, C, 文章1，3，5
+中包含A,B,C,文章2，4中包含A,C，文章6包含A，文章7包含B，文章8包含C，则第一次排序
+按照子集进行排序，结果为1,3,5,2,4,6,7,8;
+同时在每一个子集中文章的次序按照view_ts和vote_ts进行排序，则第二次排序的结果有可
+能为1,5,3,4,2,6,7,8
+在这个子环节调用的过程为：
+__redis_get_index(从redis中获取索引)----->__index_union_sort(对结果进行子类划分，第一次排序)------>__offset_rearrange(对所有偏移量进行处理)----->__index_rank_sort(在子类中按view_ts和vote_ts排序，第二次排序)
+
+            |
+            |
+            |
+            v
+从所有排序结果中取出当前指定页面相应的条目
+            |
+            |
+            |
+            v
+mysql_get_snippet(search_kernel.h)
+从mysql中取出这些条目相应的内容
+            |
+            |
+            |
+            v
+          return
+
+两个定时器：
+1. 定时从mysql中select判断当前索引是否已经更新(每隔1个小时)
+2. 定时探测redis是否已经挂掉(每隔1分钟)
+

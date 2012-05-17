@@ -1,0 +1,192 @@
+/**
+ * @file test.cpp
+ * @brief
+ * @author jerryshao jerryshao@taomee.com
+ * @version
+ * @date 2011-11-22
+ */
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/time.h>
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "search_kernel.h"
+#include "rbtree.h"
+#include "../mysql_connect_pool.hpp"
+#include "../redis_connect_pool.hpp"
+
+
+unsigned char mblen_table_utf8[] =
+{
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
+};
+
+#define MBLEN(x)  mblen_table_utf8[(x)]
+
+char* offset_word(char* ptr, int x) {
+    size_t i = 0;
+    char* p = ptr;
+    while (*ptr && x > 0) {
+        x--;
+        i += MBLEN((u_char)*p);
+        p += MBLEN((u_char)*p);
+    }
+
+    return p;
+}
+
+size_t word_len(char* ptr) {
+    size_t i = 0;
+    while (*ptr) {
+        i++;
+        ptr += MBLEN((u_char)*ptr);
+    }
+
+    return i;
+}
+
+
+//char *ptr, str[] = "hello,中文字";
+//
+//for (ptr = str, *ptr != '\0')
+//{
+//  printf("str[%d] is a word character with %d bytes\n", i, MBLEN(*ptr));
+//  ptr += MBLEN(*ptr);
+//}
+
+
+int main()
+{
+    std::string color_begin("\033[1;40;31m");
+    std::string color_end("\033[0m");
+
+    redis_connect_pool redis_connect_pool_inst(1);
+    if (redis_connect_pool_inst.redis_conn_pool_init("10.1.1.60", 6379) < 0) {
+        std::cout << "redis init failed" << std::endl;
+        return -1;
+    }
+
+    mysql_connect_pool mysql_connect_pool_inst(1);
+    if (mysql_connect_pool_inst.mysql_conn_pool_init("10.1.1.60",
+                                                     3306,
+                                                     "db_filter_doc",
+                                                     "root",
+                                                     "ta0mee",
+                                                     "utf8") < 0) {
+        std::cout << "mysql init failed" << std::endl;
+        return -1;
+    }
+
+    struct timeval start_time, end_time;
+
+    std::vector<std::string> keyword_vec;
+    keyword_vec.push_back(std::string("摩尔"));
+    keyword_vec.push_back(std::string("庄园"));
+
+    search_kernel search_kernel_inst;
+    set_data_map_t search_result_map;
+
+    gettimeofday(&start_time, NULL);
+    if (search_kernel_inst.kernel_search_process(keyword_vec,
+                                                 redis_connect_pool_inst.get_next_redis_conn(),
+                                                 mysql_connect_pool_inst.get_next_mysql_conn(),
+                                                 1,
+                                                 search_result_map) < 0) {
+        std::cout << "kernel_search_process failed" << std::endl;
+        return -1;
+    }
+    gettimeofday(&end_time, NULL);
+    std::cout << "kernel_search_process time " << end_time.tv_usec - start_time.tv_usec << std::endl;
+
+    ///////////////////////////////////////////////////////////
+    ///get the first 20 snippets
+    gettimeofday(&start_time, NULL);
+    std::vector<did_tr_node_t*> node_vec;
+    set_data_map_it_t it = search_result_map.begin();
+    int result_num = 20;
+
+    for ( ; it != search_result_map.end(); ++it) {
+        struct rb_node* p = NULL;
+        for (p = rb_first(&it->second.rank_tr_root); p; p = rb_next(p)) {
+            did_tr_node_t* node = rb_entry(p, did_tr_node_t, tr_node);
+
+            node_vec.push_back(node);
+            if (--result_num == 0) {
+                goto out;
+            }
+        }
+    }
+
+out:
+    if (search_kernel_inst.mysql_get_snippet(node_vec, mysql_connect_pool_inst.get_next_mysql_conn()) < 0) {
+        std::cout << "mysql_get_snippet failed" << std::endl;
+        return -1;
+    }
+    gettimeofday(&end_time, NULL);
+    std::cout << "mysql_get_snippet time " << end_time.tv_usec - start_time.tv_usec << std::endl;
+
+    //////////////////////////////////////////////////////////////////
+
+    it = search_result_map.begin();
+    for ( ; it != search_result_map.end(); ++it) {
+        std::cout << ".............." << it->first << "............." << std::endl;
+
+        struct rb_node* p = NULL;
+        for (p = rb_first(&it->second.rank_tr_root);  p; p = rb_next(p)) {
+            did_tr_node_t* node = rb_entry(p, did_tr_node_t, tr_node);
+
+            std::cout << "rank " << node->rank << " did " << node->did << std::endl;
+            if (node->snippet_title) {
+                std::cout << "snippet title " << node->snippet_title << std::endl;
+            }
+
+            if (node->snippet_content) {
+                std::cout << "snippet content " << node->snippet_content << std::endl;
+            }
+
+            index_data_t* index = node->index_list_node;
+            while (index) {
+                std::cout << "offset ";
+
+
+                if (index->flag == 1) {
+                    for (int i = 0; i < index->len; i++) {
+                        std::cout << index->data[i].keyword_id << ' ' << index->data[i].offset << ' ';
+                    }
+                } else if (index->flag == 2) {
+                    for (int i = 0; i < index->len; i++) {
+                        std::cout << index->data[i].keyword_id << ' ' << index->data[i].offset << ' ';
+                    }
+                }
+                std::cout << '\n' << "index_flag " << index->flag << std::endl;
+                index = index->next;
+            }
+        }
+    }
+
+    search_kernel_inst.kernel_search_destroy_map(search_result_map);
+
+    pause();
+
+
+    return 0;
+
+}

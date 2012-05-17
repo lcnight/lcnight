@@ -1,0 +1,127 @@
+/**
+ * @file test.cpp
+ * @brief
+ * @author jerryshao jerryshao@taomee.com
+ * @version
+ * @date 2011-11-22
+ */
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/time.h>
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "key_process_engine.h"
+#include "char_to_py.hpp"
+#include "../utility/mysql_connect_pool.hpp"
+#include "../utility/redis_connect_pool.hpp"
+
+
+int main()
+{
+    redis_connect_pool redis_connect_pool_inst(1);
+    if (redis_connect_pool_inst.redis_conn_pool_init("10.1.1.60", 6379) < 0) {
+        std::cout << "redis init failed" << std::endl;
+        return -1;
+    }
+
+    mysql_connect_pool mysql_connect_pool_inst(1);
+    if (mysql_connect_pool_inst.mysql_conn_pool_init("10.1.1.60",
+                                                     3306,
+                                                     "db_filter_doc",
+                                                     "root",
+                                                     "ta0mee",
+                                                     "utf8") < 0) {
+        std::cout << "mysql init failed" << std::endl;
+        return -1;
+    }
+
+    key_process_engine key_process_engine_inst;
+
+    pthread_rwlock_t rw_lock;
+    if (pthread_rwlock_init(&rw_lock, NULL) < 0) {
+        std::cout << "pthread_rwlock_init failed" << std::endl;
+        return -1;
+    }
+
+    char_to_py char_to_py_inst("./py.dat");
+    int table_id = 0;
+
+    struct timeval start_time, end_time;
+
+    //////////////////////////////////////////////////////////////////
+    gettimeofday(&start_time, NULL);
+    if (key_process_engine_inst.engine_build(&rw_lock,
+                                             redis_connect_pool_inst.get_next_redis_conn(),
+                                             mysql_connect_pool_inst.get_next_mysql_conn(),
+                                             char_to_py_inst,
+                                             &table_id) < 0) {
+        std::cout << "engine_build failed" << std::endl;
+        return -1;
+    }
+    gettimeofday(&end_time, NULL);
+    std::cout << end_time.tv_sec - start_time.tv_sec << std::endl;
+
+    ///////////////////////////////////////////////////////////////////
+
+    gettimeofday(&start_time, NULL);
+    std::vector<std::string> str_vec;
+    if (key_process_engine_inst.engine_get_hinted_keys("家园", str_vec, char_to_py_inst) < 0) {
+        std::cout << "engine_get_hinted_keys failed" << std::endl;
+        return -1;
+    }
+    gettimeofday(&end_time, NULL);
+    std::cout <<  end_time.tv_usec - start_time.tv_usec << std::endl;
+
+    for(size_t i = 0; i < str_vec.size(); i++) {
+        std::cout << str_vec[i] << std::endl;
+    }
+
+    ///////////////////////////////////////////////////////////////////
+
+    gettimeofday(&start_time, NULL);
+    std::string output_str;
+    if (key_process_engine_inst.engine_key_process("价哥",
+                                                   output_str,
+                                                   char_to_py_inst) < 0) {
+        std::cout << "engine_key_process failed" << std::endl;
+        return -1;
+    }
+
+    gettimeofday(&end_time, NULL);
+    std::cout <<  end_time.tv_usec - start_time.tv_usec << std::endl;
+    std::cout << output_str << std::endl;
+    //////////////////////////////////////////////////////////////////
+
+    gettimeofday(&start_time, NULL);
+    std::vector<std::string> input_str_vec;
+    std::vector<std::string> output_str_vec;
+
+    input_str_vec.push_back("价格");
+    input_str_vec.push_back("交换");
+    input_str_vec.push_back("阿爸");
+    if (key_process_engine_inst.engine_get_recommend_keys(input_str_vec,
+                                                          output_str_vec,
+                                                          char_to_py_inst) < 0) {
+        std::cout << "engine_get_recommend_keys failed" << std::endl;
+        return -1;
+    }
+
+    gettimeofday(&end_time, NULL);
+
+    std::cout <<  end_time.tv_usec - start_time.tv_usec << std::endl;
+
+    for(size_t i = 0; i < output_str_vec.size(); i++) {
+        std::cout << output_str_vec[i] << std::endl;
+    }
+    //////////////////////////////////////////////////////////////////
+
+    while (1) {
+        sleep(3);
+    }
+
+    return 0;
+
+}
