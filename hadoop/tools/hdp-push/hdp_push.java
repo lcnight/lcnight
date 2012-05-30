@@ -58,20 +58,23 @@ public class hdp_push {
         }
 
         Configuration conf = new Configuration();
-        FileSystem fs = FileSystem.get(URI.create(tgfile), conf);
 
-        FSDataOutputStream out;
-        if (!fs.exists(new Path(tgfile))) {
-            out = fs.create(new Path(tgfile));
-        } else {
-            out = fs.append(new Path(tgfile));
-        }
-
+        //System.out.printf("do real work\n");
         if (appstr != "") {
+            FileSystem fs = FileSystem.get(URI.create(tgfile), conf);
+
+            FSDataOutputStream out;
+            if (!fs.exists(new Path(tgfile))) {
+                out = fs.create(new Path(tgfile));
+            } else {
+                out = fs.append(new Path(tgfile));
+            }
+
             try { 
                 StringBuilder sb = new StringBuilder();
                 sb.append(appstr);
                 sb.append('\n');
+
                 out.writeBytes(sb.toString());
             } finally {
                 out.sync();
@@ -79,10 +82,24 @@ public class hdp_push {
             }
         } 
         else if (appfile != "") {
+            FileSystem fs = FileSystem.get(URI.create(tgfile), conf);
+
+            FSDataOutputStream out;
+            if (!fs.exists(new Path(tgfile))) {
+                out = fs.create(new Path(tgfile));
+            } else {
+                out = fs.append(new Path(tgfile));
+            }
             append_file(appfile, out, fs);
         } 
         else if (mergefile != "") {
-            merge_file(mergefile, out, fs);
+            String[] tmpfiles = mergefile.split(",");
+            String[] dstfiles = tgfile.split(",");
+            int filescnt = tmpfiles.length <= dstfiles.length ? tmpfiles.length : dstfiles.length;
+            for (int i=0 ; i < filescnt ; ++i) {
+                System.out.printf("from %s to %s\n", tmpfiles[i], dstfiles[i]);
+                merge_path(tmpfiles[i], dstfiles[i], conf);
+            }
         } else {
             System.err.println("Err: no string/append/merge file provided");
         }
@@ -109,7 +126,6 @@ public class hdp_push {
 
         if (llen <= dpos) {
             System.err.printf("no merge, local file size: %d <= remote file size: %d\n", llen, dpos);
-            System.exit(0);
         }
 
         FileInputStream inf = new FileInputStream(lcpath); 
@@ -118,16 +134,31 @@ public class hdp_push {
         inf.close();
     }
 
+    private static void merge_path(String lcpath, String dstpath, Configuration conf) throws Exception
+    {
+        FileSystem fs = FileSystem.get(URI.create(dstpath), conf);
+
+        FSDataOutputStream out;
+        if (!fs.exists(new Path(dstpath))) {
+            out = fs.create(new Path(dstpath));
+        } else {
+            out = fs.append(new Path(dstpath));
+        }
+
+        merge_file(lcpath, out, fs);
+    }
+
     private static void usage()
     {
         String usages = "Usage: exe [options] <-s ..> | <-a ..> | <-m ..>\n"+
             "\t-h    --help       Print this usage information\n"+
             "\t-v    --verbose    Print out VERBOSE information\n"+
             "\t-f    --file       target operated file, must be provided\n"+
-            "\t-s    --apps       append string to target file\n"+
-            "\t-a    --appf       append to target file, specify local file name\n"+
-            "\t-m    --merge      merge two files based on both parent directory\n\n"+
-            "Example:\n\texe -s local-tmp -d /tmp/input -m file.txt\t# merge file.txt from local-tmp/ to /tmp/input/"
+            "\t-s    --apps       append string to one target file\n"+
+            "\t-a    --appf       append to one target file from local file\n"+
+            "\t-m    --merge      merge two files with matched src/dst num, comma(,) separated files path\n\n"+
+            "Example:\n\tjava hdp-push -m /tmp/local-tmp -f /tmp/file.txt\t# merge /tmp/local-tmp to /tmp/file.txt\n"+
+                    "\tjava hdp-push -m /tmp/local-tmp,/tmp/tmp2 -f /tmp/file.txt,/tmp/tmp2\t# merge 2 files"
                 ;
         System.out.println(usages);
         System.exit(1);

@@ -4,14 +4,16 @@ JAR			=	$(JAVA_BIN)/jar
 HADOOP_PATH	=	/home/lc/hadoop/hadoop-1.0.1
 CLASSPATH	=	$(HADOOP_PATH)/*:$(HADOOP_PATH)/lib/*
 SRC			=	$(wildcard *.java)
+CLS			=	$(wildcard *.class)
 #CLS			=	$(patsubst %.java, %.class, $(SRC))
-#CLS			=	$(wildcard *.class)
 
 hdppush: $(SRC) 
 	$(JAVAC) -cp $(CLASSPATH) $(SRC)
-	$(JAR) cvf $@.jar *.class
 
-.PHONY: cmd r c 
+tar:
+	$(JAR) cvf hdppush.jar *.class
+
+.PHONY: cmd tar r c 
 
 c: clean
 
