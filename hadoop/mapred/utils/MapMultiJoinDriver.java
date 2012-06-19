@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.Counter;
 //import org.apache.commons.logging.LogFactory;
 //import org.apache.commons.logging.Log;
 
-public class MapJoinDriver extends Configured implements Tool {
+public class MapMultiJoinDriver extends Configured implements Tool {
 
     public static class Map extends MapReduceBase
             implements Mapper<Text, TupleWritable, Text, Text>
@@ -22,20 +22,23 @@ public class MapJoinDriver extends Configured implements Tool {
         private Text joinCols = new Text();
         private JobConf jconf = null;
         private String joinType = "inner";
+        private int joinTblNum = 2;
         public void configure(JobConf conf)
         {
             this.jconf = conf;
             joinType = conf.get("mapred.map.join.type");
-
-            //System.out.printf("mapred.map.join.type = %s\n", joinType);
+            joinTblNum = conf.getInt("mapred.map.join.tblNum", 2);
+            //System.out.printf("mapred.map.join.type = %s, tblNum = %d\n", joinType, joinTblNum);
         }
 
         public void map(Text key, TupleWritable value,
                 OutputCollector<Text,Text> output, Reporter reporter) throws IOException
         {
             if (joinType.equals("inner")) {
-                if (!(value.has(0) && value.has(1))) {
-                    return;
+                for (int i = 0 ; i < joinTblNum ; ++i) {
+                    if (!value.has(i)) {
+                        return;
+                    }
                 }
             } 
             else if (joinType.equals("left")) {
@@ -44,17 +47,7 @@ public class MapJoinDriver extends Configured implements Tool {
                 }
             } 
             else if (joinType.equals("right")) {
-                if (!value.has(1)) {
-                    return;
-                }
-            } 
-            else if (joinType.equals("leftonly")) {
-                if (!(value.has(0) && !value.has(1))) {
-                    return;
-                }
-            } 
-            else if (joinType.equals("rightonly")) {
-                if (!(!value.has(0) && value.has(1))) {
+                if (!value.has(joinTblNum - 1)) {
                     return;
                 }
             } else {
@@ -67,29 +60,19 @@ public class MapJoinDriver extends Configured implements Tool {
         }
     }
 
-    // reduce in map
     //public static class Reduce extends MapReduceBase
             //implements Reducer<Text, Text, Text, Text>
     //{
-        //Text words = new Text();
         //public void reduce(Text key, Iterator<Text> values,
                 //OutputCollector<Text,Text> output, Reporter reporter) throws IOException {
             //while (values.hasNext()) {
-                //String flatStr = MiscUtil.flattenTuple(values.next().toString());
-                //String[] items = flatStr.split("\t", -1);
-                //if (items[0].length() == 0) {
-                    //continue;
-                //} else {
-                    //words.set(flatStr);
-                    //output.collect(key, words);
-                //}
             //}
         //}
     //}
 
     private void showUsage(String clsName)
     {
-        System.out.printf("Usage: %s <subtract|left|leftonly|right|rightonly|inner|outer> inputA inputB output\n" +
+        System.out.printf("Usage: %s <left|right|inner|outer> input... output\n" +
                 "\tjoin and produce items in MapTask\n\n", clsName, clsName);
         System.exit(0);
     }
@@ -97,10 +80,8 @@ public class MapJoinDriver extends Configured implements Tool {
     public int run(String[] args) throws Exception {
         // final Log LOG = LogFactory.getLog("main-test");
         String clsName = this.getClass().getName();
-        if (args.length != 4 || 
-                !(args[0].equals("subtract") || 
-                    args[0].equals("left") || args[0].equals("leftonly") || 
-                    args[0].equals("right") || args[0].equals("rightonly") || 
+        if (args.length < 4 || 
+                !( args[0].equals("left") || args[0].equals("right") ||
                     args[0].equals("inner") || args[0].equals("outer") )) {
             showUsage(clsName);
         }
@@ -110,8 +91,10 @@ public class MapJoinDriver extends Configured implements Tool {
         String jarName = job.get("user.jar.name", "UserStat.jar");
         job.setJar(jarName);
         job.set("mapred.map.join.type", args[0]);
+        int tblNum = args.length - 2;
+        job.setInt("mapred.map.join.tblNum", tblNum);
 
-        Path[] p = new Path[2];
+        Path[] p = new Path[tblNum];
         for (int i = 1 ; i < args.length - 1 ; ++i) {
             if (!MiscUtil.pathExist(args[i], conf)) {
                 System.err.printf("not exists PATH: %s\n", args[i]);
@@ -120,15 +103,21 @@ public class MapJoinDriver extends Configured implements Tool {
             FileInputFormat.addInputPaths(job, args[i]);
             p[i - 1] = new Path(args[i]);
         }
-        job.setJobName(String.format("%s {%s & $s}\n", 
-                    clsName, p[0].getName(), p[1].getName()));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ ");
+        for (int i = 0 ; i < tblNum ; ++i) {
+           sb.append(p[i].getName());
+           sb.append(" | ");
+        }
+        sb.append("} ");
+        job.setJobName(String.format("%s %s\n", clsName, sb.toString()));
 
         job.set("mapred.join.expr", CompositeInputFormat.compose("outer",
                     KeyValueTextInputFormat.class, FileInputFormat.getInputPaths(job)));
         System.out.printf("mapred.join.expr = %s\n", job.get("mapred.join.expr"));
 
         job.setInputFormat(CompositeInputFormat.class);
-        // job.setMapperClass(IdentityMapper.class);
         job.setMapperClass(Map.class);
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
@@ -136,7 +125,6 @@ public class MapJoinDriver extends Configured implements Tool {
         FileOutputFormat.setOutputPath(job, new Path(args[args.length - 1]));
 
         job.setOutputFormat(TextOutputFormat.class);
-        //job.setReducerClass(Reduce.class);
         job.setReducerClass(IdentityReducer.class);
         //job.setOutputKeyClass(Text.class);
         //job.setOutputValueClass(Text.class);
@@ -156,7 +144,7 @@ public class MapJoinDriver extends Configured implements Tool {
 
     public static void main(String args[]) throws Exception
     {
-        int ret = ToolRunner.run(new Configuration(), new MapJoinDriver(), args);
+        int ret = ToolRunner.run(new Configuration(), new MapMultiJoinDriver(), args);
         System.exit(ret);
     }
 }

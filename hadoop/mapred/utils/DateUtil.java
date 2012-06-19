@@ -41,7 +41,7 @@ public class DateUtil
         return calendar.get(Calendar.YEAR) * 100 + calendar.get(Calendar.MONTH);
     }
 
-    public static String getYMDFormat(int timestamp)
+    public static String getYMDFormat(long timestamp)
     {
         inDate.setTime(timestamp * 1000L);
         return ymdFmt.format(inDate);
@@ -49,9 +49,9 @@ public class DateUtil
 
     public static String getYMDFormat(String timestr) 
     {
-        int timestamp = 0;
+        long timestamp = 0;
         try { 
-            timestamp = Integer.valueOf(timestr);
+            timestamp = Long.valueOf(timestr).longValue();
         } catch (Exception e) {
             timestamp = 0;
         } 

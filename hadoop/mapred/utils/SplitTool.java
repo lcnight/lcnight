@@ -14,7 +14,7 @@ import org.apache.hadoop.mapred.lib.*;
 import org.apache.hadoop.mapred.join.*;
 import org.apache.hadoop.mapreduce.Counter;
 
-public class UniqKeyValue extends Configured implements Tool {
+public class SplitTool extends Configured implements Tool {
 
     //public static class Map extends MapReduceBase
             //implements Mapper<Text, Text, Text, Text>
@@ -30,49 +30,59 @@ public class UniqKeyValue extends Configured implements Tool {
         //}
     //}
 
-    public static class Reduce extends MapReduceBase
-        implements Reducer<Text, Text, Text, Text>
-    {
-        //private IntWritable one = new IntWritable(1);
-        //private Text uniqvalue = new Text();
+    //public static class Reduce extends MapReduceBase
+        //implements Reducer<Text, Text, Text, Text>
+    //{
+        //public void reduce(Text key, Iterator<Text> values,
+                //OutputCollector<Text,Text> output, Reporter reporter) throws IOException {
 
-        public void reduce(Text key, Iterator<Text> values,
-                OutputCollector<Text,Text> output, Reporter reporter) throws IOException {
+            //output.collect(key, values.next());
 
-            output.collect(key, values.next());
-
-            while (values.hasNext()) {
-                System.out.printf("another value: %s for key: %s\n",
-                        values.next().toString(), key.toString());
-            }
-        }
-    }
+            //while (values.hasNext()) {
+                //System.out.printf("another value: %s for key: %s\n",
+                        //values.next().toString(), key.toString());
+            //}
+        //}
+    //}
 
     public int run(String[] args) throws Exception {
         // final Log LOG = LogFactory.getLog("main-test");
 
         String clsName = this.getClass().getName();
-        if (args.length < 2) {
-            System.out.printf("Usage: %s inputs... output\n\n"+
-                    "\tcombine mutil files (key=>value) to one\n\n" , clsName);
+        if (args.length < 3) {
+            System.out.printf("Usage: %s <splitnum> inputs... output\n\n"+
+                    "\tcombine multi-dirs (key=>value) and split all to splitnum files\n\n" , clsName);
             System.exit(-1);
         }
+
+        int splitNum = 1;
+        try { 
+            splitNum = Integer.valueOf(args[0]);
+            if (splitNum <= 0) {
+                System.err.printf("splitnum should > 0, supply splitnum = %d\n", splitNum);
+                System.exit(-1);
+            }
+        } catch (Exception e) {
+            System.err.printf("error when parsing splitnum %s\n", args[0]);
+            e.printStackTrace();
+            System.exit(-1);
+        } 
 
         Configuration conf = getConf();
         JobConf job = new JobConf(conf, getClass());
         String jarName = job.get("user.jar.name", "UserStat.jar");
         job.setJar(jarName);
         Path outPath = new Path(args[args.length - 1]);
-        job.setJobName(String.format("%s/%s", clsName, outPath.getName()));
+        job.setJobName(String.format("%s/%s/%s", jarName, clsName, outPath.getName()));
 
         job.setMapperClass(IdentityMapper.class);
-        job.setReducerClass(Reduce.class);
+        job.setReducerClass(IdentityReducer.class);
 
         // set input format
         job.setInputFormat(KeyValueTextInputFormat.class);
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
-        for (int i = 0 ; i < args.length - 1 ; ++i) {
+        for (int i = 1 ; i < args.length - 1 ; ++i) {
             if (!MiscUtil.pathExist(args[i], conf)) {
                 continue;
             }
@@ -90,9 +100,9 @@ public class UniqKeyValue extends Configured implements Tool {
         //job.setPartitionerClass(TextPartitioner.class);
         //job.setGroupingComparatorClass(TextComparator.class);
         //job.setNumMapTasks(1);
-        int reduceNum = job.getInt("mapred.reduce.tasks", 0);
-        System.out.printf("mapred.reduce.tasks = %d\n", reduceNum);
-        job.setNumReduceTasks(reduceNum);
+        //int reduceNum = job.getInt("mapred.reduce.tasks", 0);
+        job.setNumReduceTasks(splitNum);
+        System.out.printf("mapred.reduce.tasks = %d\n", splitNum);
 
         JobClient.runJob(job);
 
@@ -101,7 +111,7 @@ public class UniqKeyValue extends Configured implements Tool {
 
     public static void main(String args[]) throws Exception
     {
-        int ret = ToolRunner.run(new Configuration(), new UniqKeyValue(), args);
+        int ret = ToolRunner.run(new Configuration(), new SplitTool(), args);
         System.exit(ret);
     }
 }

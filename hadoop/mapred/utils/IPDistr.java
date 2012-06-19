@@ -131,18 +131,6 @@ public class IPDistr
      */
     public IPDistr(String mysqluri) throws ClassNotFoundException, SQLException
     {
-        //String mysqlschema = "mysql://";
-        //if (!mysqluri.startsWith(mysqlschema)) {
-            //throw new SQLException();
-        //}
-        //int beg = mysqlschema.length();
-        //int end = mysqluri.indexOf(':', beg);
-        //String myuser = mysqluri.substring(beg, end);
-
-        //beg = end + 1;
-        //end = mysqluri.indexOf('@', beg);
-        //String mypwd = mysqluri.substring(beg, end);
-
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -151,10 +139,8 @@ public class IPDistr
             throw e;
         }
 
-        //String jdbcmysqlconnstr = String.format("jdbc:%s%s", mysqlschema, mysqluri.substring(end + 1));
         MysqlUriParser myp = new MysqlUriParser(mysqluri);
         try {
-            //this.mysqlConn = DriverManager.getConnection(jdbcmysqlconnstr, myuser, mypwd);
             this.mysqlConn = DriverManager.getConnection(myp.getJdbcURL(), myp.getUser(), myp.getPassword());
         } catch (SQLException e) {
             System.err.println("get connection failed");

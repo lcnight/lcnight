@@ -105,4 +105,17 @@ function log_console(&$fd, &$msg) {
     fprintf(STDOUT, $msg);
 }
 
+
+//require_once('log.php');
+//LOG::Error('hello world');
+//LOG::Error();
+//LOG::Info('info ok');
+//LOG::Info('info ok');
+//
+// MUST init (log-dst/prefix/log-dir)
+//LOG::initialize(array('console', 'file'), 'test-', './mylogs');
+//LOG::Debug('info ok');
+//LOG::Debug();
+//LOG::Debug('debug');
+
 ?>

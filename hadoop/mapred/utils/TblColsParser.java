@@ -3,12 +3,16 @@ import java.util.ArrayList;
 public class TblColsParser
 {
     private static String forall = "-1";
-    // only process cols index >= skipIdx
-    int skipIdx = 0;
+    private static String curline = null;
     private String [] cols = null;
     private String nullDef = "0";
+    // only process cols index >= skipIdx
+    private int skipIdx = 0;
+    // index need reguar not null value to 1
+    private int regularIdx = -1;
     private ArrayList<String> arr1 = new ArrayList<String>();
     private ArrayList<String> arr2 = new ArrayList<String>();
+
     public TblColsParser() { };
     public TblColsParser(String tblline)
     {
@@ -16,19 +20,27 @@ public class TblColsParser
     }
     public void setContent(String line)
     {
+        curline = line;
         cols = line.split("\t", -1);
-    }
-    public void setSkip(int skip)
-    {
-        skipIdx = skip;
     }
     public void setNullDefault(String nd)
     {
         nullDef = nd;
     }
+    public void setSkip(int idx)
+    {
+        skipIdx = idx;
+    }
+    public void setRegularIndex(int idx)
+    {
+        regularIdx = idx;
+    }
 
     protected String getColValue(int idx, String value)
     {
+        if (idx == regularIdx && value.length() != 0) {
+            return "1";
+        } 
         return value.length()!=0?value:nullDef;
     }
 
@@ -37,6 +49,9 @@ public class TblColsParser
         if (cols.length <= skipIdx) {
             return new String[0];
         }
+        //if (cols.length < 4) {
+            //System.err.printf("%s cols < 4\n", curline);
+        //}
         arr2.clear();
         arr1.clear();
         arr1.add(cols[skipIdx].length()==0?nullDef:cols[skipIdx]);

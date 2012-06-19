@@ -218,6 +218,8 @@ public class ReduceJoinDriver extends Configured implements Tool {
         Configuration conf = getConf();
         JobConf job = new JobConf(conf, getClass());
         job.setJobName(clsName);
+        String jarName = job.get("user.jar.name", "UserStat.jar");
+        job.setJar(jarName);
 
         job.set("mapred.reduce.join.type", args[0]);
 

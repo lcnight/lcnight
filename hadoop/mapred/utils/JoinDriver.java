@@ -81,6 +81,8 @@ public class JoinDriver extends Configured implements Tool {
 
         JobConf job = new JobConf(getConf(), getClass());
         job.setJobName(clsName);
+        String jarName = job.get("user.jar.name", "UserStat.jar");
+        job.setJar(jarName);
 
         if (args[0].equals("-expr")) {
             System.out.printf("set mapred.join.expr = %s\n", args[1]);

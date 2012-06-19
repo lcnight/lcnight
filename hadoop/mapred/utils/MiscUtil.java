@@ -1,5 +1,8 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.Configuration;
 
@@ -49,11 +52,55 @@ public class MiscUtil
     {
         return pathExist(new Path(path), conf);
     }
-    public static boolean pathExist(Path path, Configuration conf)
+
+    private static PathFilter hiddenFileFilter = new PathFilter(){
+        public boolean accept(Path p){
+            String name = p.getName();
+            return !name.startsWith("_") && !name.startsWith(".");
+        }
+    };
+    public static boolean pathExist(Path pathPattern, Configuration conf)
         throws IOException
     {
-        FileSystem fs = path.getFileSystem(conf);
-        return fs.exists(path);
+        //FileSystem fs = path.getFileSystem(conf);
+        //return fs.exists(path);
+
+        FileSystem fs = pathPattern.getFileSystem(conf);
+        FileStatus[] matches = fs.globStatus(pathPattern, hiddenFileFilter);
+        if (matches == null || matches.length == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static Path[] listFiles(Path pathPattern, Configuration conf)
+        throws IOException
+    {
+        //PathFilter hiddenFileFilter = new PathFilter(){
+            //public boolean accept(Path p){
+                //String name = p.getName();
+                //return !name.startsWith("_") && !name.startsWith(".");
+            //}
+        //};
+
+        FileSystem fs = pathPattern.getFileSystem(conf);
+        FileStatus[] matches = fs.globStatus(pathPattern, hiddenFileFilter);
+        if (matches.length == 0) {
+            return new Path[0];
+        }
+        ArrayList<Path> mpaths = new ArrayList<Path>();
+        for (FileStatus globStat: matches) {
+            if (globStat.isDir()) {
+                for(FileStatus stat: fs.listStatus(globStat.getPath(), hiddenFileFilter)) {
+                    mpaths.add(stat.getPath());
+                }
+            } else {
+                mpaths.add(globStat.getPath());
+            }
+        }
+
+        return mpaths.toArray(new Path[mpaths.size()]);
     }
 
     public static void printArray(String[] objs)
@@ -62,6 +109,5 @@ public class MiscUtil
         for (int i = 0 ; i < objs.length ; ++i) {
             System.out.println(objs[i]);
         }
-
     }
 }
