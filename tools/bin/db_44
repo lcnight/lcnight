@@ -1,0 +1,4 @@
+#! /bin/bash
+
+#mysql -h10.1.1.44 -uroot -pta0mee -Ddb_stat_config --prompt="\u@\d:\h mysql> " --default-character-set="utf8" 
+mysql -h10.1.1.44 -uroot -pta0mee -Ddb_stat_config --prompt="\u@\d:\h mysql> " --default-character-set="utf8" 

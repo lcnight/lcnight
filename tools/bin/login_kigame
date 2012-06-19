@@ -1,0 +1,13 @@
+#! /bin/bash
+
+PASS=d5f40a559b32
+USER=kigame
+IP_PREFIX=114.80.173.
+
+if [[ $2 ]]; then
+    str="sshpass -p $2 ssh -p 57000 $USER@${IP_PREFIX}$1"
+else
+    str="sshpass -p $PASS ssh -p 57000 $USER@${IP_PREFIX}$1"
+fi
+echo $str
+eval "$str"

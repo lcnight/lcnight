@@ -1,0 +1,52 @@
+set nocompatible
+set backspace=indent,eol,start  " allow backspacing over everything in insert mode
+set history=500         " keep 50 lines of command line history
+set ruler               " show the cursor position all the time
+set number              " Show line number
+set incsearch           " do incremental searching
+set ignorecase          " Ignore case when searching
+set hlsearch            " Highlight search things
+set autoread            " Set to auto read when a file is changed from the outside
+set cmdheight=2         " The commandbar is 2 high
+set whichwrap+=<,>,h,l  " Bbackspace and cursor keys wrap to
+set magic               " Set magic on
+set hid                 " Change buffer - without saving
+set lz                  " Do not redraw, when running macros.. lazyredraw
+set autochdir           " change current working directory
+set showcmd             " display incomplete commands
+set wildmenu            " Turn on WiLd menu
+set completeopt=longest,menu " 插入模式的补全
+
+"Set mapleader
+let mapleader = ","
+let g:mapleader = ","
+
+"Fast saving
+nmap <leader>w :w!<cr>
+" 保存所有文件
+map <F12> :wall<cr>
+
+"Switch to current dir
+map <leader>cd :cd %:p:h<cr>
+
+" 重新加载本文件
+map <leader>r :e %<cr>
+
+" no highlight search stuff
+map <silent> <leader><cr> :noh<cr>
+
+"Remove the Windows ^M
+noremap <Leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
+
+" Remove indenting on empty lines
+map <Leader>b<CR> :%s/\s*$//g<cr>:noh<cr>''
+
+" format operation
+map - $
+map <c-p> viw
+map <leader>= =a{
+set cinoptions=:0,g0    " help C-indenting
+
+" grep tag
+map <F3> :!grep  <c-r><c-w> * -rn<cr>
+

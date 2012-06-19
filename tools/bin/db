@@ -18,4 +18,4 @@ db=${2:-"mysql"}
 conn_str="mysql -h$host -uroot -pta0mee -D\"$db\" --default-character-set=\"utf8\" --prompt=\"\u@\d:\h mysql>\""
 
 echo $conn_str
-#eval $conn_str
+eval $conn_str

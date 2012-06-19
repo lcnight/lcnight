@@ -1,0 +1,28 @@
+#! /bin/bash
+
+if [[ $# < 1 ]]; then
+    echo "Usage: `basename $0` bak_dirs [n minutes]"
+    exit 0;
+fi
+
+if [[ ! -d $1 ]]; then
+    echo "bak dir not existed"
+    exit 1;
+fi
+
+lessMins=60;
+if [[ $2 ]]; then
+    lessMins=$2;
+fi
+
+find . -maxdepth 1 -type f -mmin -$lessMins | xargs -I{} mv -fv {} $1/{};
+
+#files=`find . -maxdepth 1 -type f -mmin -$lessMins;`
+#echo -e "file list:\n$files"
+
+#if [[ $files ]]; then
+    #echo;
+    #mv -v $files $1
+#else
+    #echo "file list is empty, nop";
+#fi
