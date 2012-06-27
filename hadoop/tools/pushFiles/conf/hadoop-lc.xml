@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- specify local running env -->
+
+<configuration>
+    <property>
+        <name>fs.default.name</name>
+        <value>file:///</value>
+    </property>
+    <property>
+        <name>mapred.job.tracker</name>
+        <value>local</value>
+    </property>
+    <!--<property>-->
+        <!--<name>mapred.reduce.tasks</name>-->
+        <!--<value>1</value>-->
+        <!--</property>-->
+    <property>
+        <name>mapred.child.java.opts</name>
+        <value>-Xms100m -Xmx100m -Xprof</value>
+    </property>
+    <property>
+        <name>io.sort.mb</name>
+        <value>200</value>
+    </property>
+    <property>
+        <name>mapred.compress.map.output</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>ipdistr.mysql.uri</name>
+        <value>mysql://root:ta0mee@10.1.1.60/city_ip_db?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8</value>
+    </property>
+</configuration>

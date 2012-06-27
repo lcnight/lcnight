@@ -1,0 +1,4 @@
+
+#! /bin/bash
+
+hadoop jar $HADOOP_INSTALL/contrib/streaming/hadoop-streaming-1.0.1.jar $@

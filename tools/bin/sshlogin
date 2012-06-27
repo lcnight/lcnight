@@ -4,14 +4,36 @@ if [[ $# < 1 ]]; then
     echo "usage: `basename $0` ip-token"
 fi
 
+PWDSHELL='sshpass -p'
+SSHSHELL='ssh -q'
+
 case $1 in
     1.103)
-    echo "login to wikisearch@10.1.1.103";
-    ssh wikisearch@10.1.1.103
+    loginShell="$SSHSHELL wikisearch@10.1.1.103"
     ;;
     1.44)
-    echo "login to lc@10.1.1.44";
-    ssh lc@10.1.1.44
+    loginShell="$SSHSHELL lc@10.1.1.44"
+    ;;
+    182.40)
+    loginShell="$SSHSHELL -p58000 kigame@61.155.182.40"
+    ;;
+    182.41)
+    loginShell="$SSHSHELL -p58000 kigame@61.155.182.41"
+    ;;
+    182.42)
+    loginShell="$SSHSHELL -p58000 kigame@61.155.182.42"
+    ;;
+    *)
+    echo 'cannot find host to login'
     ;;
 esac
+
+echo "$loginShell";
+
+if [[ $# > 1 ]]; then
+    shift 1
+    $loginShell $@
+else
+    $loginShell
+fi
 

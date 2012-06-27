@@ -1,0 +1,22 @@
+#! /bin/bash
+
+usage()
+{
+    echo "`basename $0` [hostname] command"
+    exit
+}
+if [[ $# < 1 ]]; then
+    usage
+fi
+
+if [[ $# == 1 ]]; then # for all hosts
+    list=`cat /etc/hosts | grep 192.168 | grep -v '71.36' | cut -f2`
+    for i in $list; do
+	sshlogin $i "$1"
+	echo
+    done
+elif [[ $# == 2 ]]; then
+    sshlogin $1 "$2"
+else
+    usage 
+fi

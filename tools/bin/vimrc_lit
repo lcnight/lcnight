@@ -17,6 +17,15 @@ set showcmd             " display incomplete commands
 set wildmenu            " Turn on WiLd menu
 set completeopt=longest,menu " 插入模式的补全
 
+"expandtab 打开时，要插入实际的制表，可用 CTRL-V<Tab>
+set expandtab
+set smarttab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set textwidth=120
+set lbr
+
 "Set mapleader
 let mapleader = ","
 let g:mapleader = ","
