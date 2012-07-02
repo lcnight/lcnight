@@ -23,11 +23,13 @@ inline uint32_t get_newest_rank(uint32_t did)
 
 inline uint32_t get_doc_offset_rank(doc_info& info)
 {
+    keywords uniqkeys;
     keyword_offset_it it;
     int title_keys_num = info.off_title.size();
     int title_key_offset_num = 0;
     uint32_t title_key_leftmost = 0;
     for (it = info.off_title.begin(); it != info.off_title.end() ; it++) {
+        uniqkeys.insert(it->first);
         int offnum = it->second.size();
         title_key_offset_num += offnum;
         if (offnum == 0) {
@@ -42,12 +44,14 @@ inline uint32_t get_doc_offset_rank(doc_info& info)
     int content_keys_num = info.off_content.size();
     int content_key_offset_num = 0;
     for (it = info.off_content.begin(); it != info.off_content.end() ; it++) {
-       content_key_offset_num += it->second.size();
+        uniqkeys.insert(it->first);
+        content_key_offset_num += it->second.size();
     } /*-- end of for --*/
 
+    // rank = title_keys  + content_keys + title_keys_leftmost + uniqkeys
     uint32_t rank = 5 * (8 * title_keys_num + 2 * title_key_offset_num) 
-        +  3 * title_key_leftmost 
-        + 8 * content_keys_num + 2 * content_key_offset_num;
+        + 8 * content_keys_num + 2 * content_key_offset_num
+        +  3 * title_key_leftmost + (uniqkeys.size() - 1) * 95;
     
     return rank;
 }

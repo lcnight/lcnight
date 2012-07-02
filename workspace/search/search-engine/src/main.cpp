@@ -122,7 +122,13 @@ int main(int argc, char* argv[])
     boost::shared_ptr<word_segment_pool> word_segment_pool_ptr(p_word_segment);
 
     ///初始化核心搜索排序模块
-    search_kernel search_kernel_inst;
+    char stop_word_path[256] = {0};
+    if (p_ini_file->read_string("engine", "stop_words_path", stop_word_path, 
+                sizeof(stop_word_path), "./conf/stopwords.txt")) {
+        ERROR_LOG("fail to read engine/stop_words_path from conf file");
+        return -1;
+    }
+    search_kernel search_kernel_inst(stop_word_path);
 
     ///初始化tcp服务端
     int redis_cache_table = p_ini_file->read_int("redis_conf", "redis_cache_table", 2);

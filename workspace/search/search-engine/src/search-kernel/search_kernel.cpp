@@ -246,7 +246,7 @@ int search_kernel::regular_keywords(redisContext* redis_conn, int table_id,
         const keyword_vector& raw_keywords, keyword_vector& real_keywords, sorted_docs& set_data_map)
 {
     keyword_vector exists_keys;
-    keyword_vector not_keys;
+    keyword_vector need_split_keys;
 
     /// test 输入检索词是否已经是关键词
     redisReply* reply = NULL;
@@ -273,7 +273,7 @@ int search_kernel::regular_keywords(redisContext* redis_conn, int table_id,
         string keyword(raw_keywords[s - 1].c_str());
         if (reply->elements == 0) {
             DEBUG_LOG("not keys: %s", keyword.c_str());
-            not_keys.push_back(keyword);
+            need_split_keys.push_back(keyword);
             continue;
         } else {
             DEBUG_LOG("exists keys: %s", keyword.c_str());
@@ -292,12 +292,19 @@ int search_kernel::regular_keywords(redisContext* redis_conn, int table_id,
         ::freeReplyObject(reply);
     }
 
+    ///// 过长的关键字 再次split
+    //for (keyword_vector_it key_it = exists_keys.begin(); key_it != exists_keys.end(); ++key_it) {
+        //if (key_it->size() > 9) {
+            //need_split_keys.push_back(*key_it);
+        //}
+    //}
+
     // tmp store swcs splited keywords
     keyword_vector splitted_keyword_str_vec;
-    for (size_t i = 0; i < not_keys.size(); ++i) {
+    for (size_t i = 0; i < need_split_keys.size(); ++i) {
         std::vector<std::string> tmp_vec;
-        if (word_segment_pool::segment_word(m_p_scws_, not_keys[i], tmp_vec) < 0) {
-            ERROR_LOG("[%s] word segment failed", not_keys[i].c_str());
+        if (word_segment_pool::segment_word(m_p_scws_, need_split_keys[i], tmp_vec) < 0) {
+            ERROR_LOG("[%s] word segment failed", need_split_keys[i].c_str());
             continue;
         }
         splitted_keyword_str_vec.insert(splitted_keyword_str_vec.end(),
@@ -310,10 +317,14 @@ int search_kernel::regular_keywords(redisContext* redis_conn, int table_id,
     real_keywords.swap(exists_keys);
     ///对每一个所要搜索的关键字进行处理，如果是第一次搜索则需要对关键字进行处理
     for (size_t i = 0; i < splitted_keyword_str_vec.size(); ++i) {
+        /// 过滤掉分隔出来的stopword
+        if (stopwords.find(splitted_keyword_str_vec[i]) != stopwords.end()) {
+            DEBUG_LOG("filter stopword: %s", splitted_keyword_str_vec[i].c_str());
+            continue;
+        }
+
         std::string tmp_str;
-        int rt = m_key_proc_.engine_key_process(splitted_keyword_str_vec[i],
-                tmp_str,
-                py_inst);
+        int rt = m_key_proc_.engine_key_process(splitted_keyword_str_vec[i], tmp_str, py_inst);
         if (rt < 0) {
             DEBUG_LOG("keyword[%s] cannot find in dict", splitted_keyword_str_vec[i].c_str());
             continue;

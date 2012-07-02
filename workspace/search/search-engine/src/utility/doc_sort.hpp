@@ -23,6 +23,9 @@ using std::map;
 using std::set;
 using std::pair;
 
+typedef std::set<std::string> keywords;
+typedef std::set<std::string>::iterator keywords_it;
+
 typedef struct doc_view_vote {
     doc_view_vote():view(0), vote(0) 
     { }

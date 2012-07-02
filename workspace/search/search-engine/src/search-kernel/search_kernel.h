@@ -9,15 +9,17 @@
 #ifndef _H_SEARCH_KERNEL_H_
 #define _H_SEARCH_KERNEL_H_
 
+#include <stdio.h>
 #include <stdint.h>
 
 #include <hiredis/hiredis.h>
 #include <mysql/mysql.h>
 #include <scws/scws.h>
 
-#include <string>
 #include <map>
+#include <set>
 #include <vector>
+#include <string>
 #include <boost/shared_ptr.hpp>
 
 #include "../struct_def.h"
@@ -29,7 +31,22 @@ typedef std::vector<std::string>::iterator keyword_vector_it;
 class key_process_engine;
 class search_kernel {
 public:
-    search_kernel() { }
+    search_kernel(const char *stopwords_path) : 
+        stopwords(keywords())
+    { 
+        FILE *pf = fopen(stopwords_path, "r");
+        if (!pf) {
+            perror("Error open stopwords file");
+            return;
+        }
+
+        const int linemax = 1024;
+        char buf[linemax] = {0};
+        while (fgets(buf, linemax, pf)) {
+            char *p = strtok(buf, " \t\n;");
+            stopwords.insert(std::string(p));
+        } /*-- end of while --*/
+    }
     ~search_kernel() { }
 
     /**
@@ -65,6 +82,11 @@ public:
             redis_index_t *doc_keys, int off_num);
 
 
+    /**
+     * @brief  根据传入的关键词得到实际检索用的关键词
+     * @param  
+     * @return -1failed, 0success
+     */
     int regular_keywords(redisContext* redis_conn, int table_id, 
         scws_t m_p_scws_, char_to_py& py_inst, key_process_engine& m_key_proc_,
         const keyword_vector& raw_keywords, keyword_vector& real_keywords, sorted_docs& set_data_map);
@@ -90,5 +112,6 @@ private:
      */
     void __index_doc_sort(key_process_engine& key_proc, sorted_docs& doc_map, rank_docid& rk_docs);
 
+    keywords stopwords;
 };
 #endif
