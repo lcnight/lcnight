@@ -24,6 +24,20 @@ public class test
         
     }
 
+    public static void ipcountrydist_test(String[] args)  throws Exception
+    {
+        String dburi = "mysql://root:ta0mee@10.1.1.60/db_ip_distribution_12_Q1?" +
+            "autoReconnect=true&useUnicode=true&characterEncoding=utf8";
+        IPCountryDistr ipd = new IPCountryDistr(dburi);
+
+        long ip = 2771424027L;
+        for (int i=0 ; i < args.length ; ++i) {
+            ip = Long.valueOf(args[i]);
+            System.out.printf("ip: %d,\nCountry Code: %s, Country Name: %s\n",
+                    ip, ipd.getIPCountryCode(ip), ipd.getIPCountryName(ip));
+        }
+        
+    }
     public static void date_test(String[] args)  throws Exception
     {
         for (int i = 0 ; i < args.length ; ++i) {
@@ -93,8 +107,8 @@ public class test
         //String s="/tmp/output/jointest/mapjoin-outer-2591";
         //System.out.println(MiscUtil.pathExist(s));
 
-        int ret = ToolRunner.run(new Configuration(), new TestTools(), args);
-        System.exit(ret);
+        //int ret = ToolRunner.run(new Configuration(), new TestTools(), args);
+        //System.exit(ret);
 
         //TblColsParser ps = new TblColsParser();
         //ps.setSkip(1);
@@ -106,5 +120,6 @@ public class test
         //ps.setContent("ab\t\t");
         //MiscUtil.printArray(ps.getGroupArray());
 
+        ipcountrydist_test(args);
     }
 }
