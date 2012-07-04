@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<project name="userstats" default="package" basedir=".">
+    <!-- global properties  -->
+    <property name="src" location="src"/>
+    <property name="classes" location="classes"/>
+    <property name="build" location="build"/>
+    <property name="lib" location="/home/lc/hadoop/hadoop-1.0.1"/>
+
+    <path id="classpath">
+        <fileset dir="${lib}" includes="hadoop-*.jar"/>
+        <fileset dir="${lib}" includes="lib/*.jar"/>
+    </path>
+
+
+    <target name="init">
+        <mkdir dir="${classes}"/>
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${classes}"
+            classpathref="classpath" includeantruntime="false"/>
+    </target>
+
+    <target name="package" depends="compile">
+        <jar destfile="UserStat.jar" basedir="${classes}">
+        </jar>
+    </target>
+
+    <target name="clean">
+        <delete dir="${classes}"/>
+        <delete dir="${build}"/>
+    </target>
+
+    <target name='build'>
+        <copy todir="${build}" preservelastmodified='true'>
+            <fileset dir="." includes='*.xml' excludes="build.xml"/>
+            <fileset dir="." includes='*.jar'/>
+            <fileset dir="." includes='*.sh'/>
+            <fileset dir="${src}" includes='*.sh'/>
+        </copy>
+        <chmod perm="+x" file="${build}/*.sh">
+        </chmod>
+    </target>
+
+    <target name='test'>
+        <!--<property name='envPath' value="${env.PATH}"/>-->
+        <!--<echo message="hell ${envPath}"/>-->
+        <property environment="env"/>
+        <echo message="hell ${env.PATH}"/>
+
+        <echo message="${build} ${line.separator} hell"/>
+    </target>
+</project>

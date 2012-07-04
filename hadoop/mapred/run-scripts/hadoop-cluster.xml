@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- specify local running env -->
+
+<configuration>
+    <!--<property>-->
+        <!--<name>fs.default.name</name>-->
+        <!--<value>file:///</value>-->
+        <!--</property>-->
+    <!--<property>-->
+        <!--<name>mapred.job.tracker</name>-->
+        <!--<value>local</value>-->
+        <!--</property>-->
+    <!--<property>-->
+        <!--<name>mapred.reduce.tasks</name>-->
+        <!--<value>1</value>-->
+        <!--</property>-->
+    <property>
+        <name>mapred.child.java.opts</name>
+        <value>-Xms300m -Xmx300m</value>
+    </property>
+    <property>
+        <name>io.sort.mb</name>
+        <value>200</value>
+    </property>
+    <property>
+        <name>mapred.compress.map.output</name>
+        <value>true</value>
+    </property>
+    <!--<property>-->
+        <!--<name>mapred.output.compress</name>-->
+        <!--<value>true</value>-->
+        <!--</property>-->
+    <property>
+        <name>user.jar.name</name>
+        <value>UserStat.jar</value>
+    </property>
+
+    <property>
+        <name>ipdistr.mysql.uri</name>
+        <value>mysql://root:ta0mee@10.1.1.60/db_ip_distribution_12_Q1?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8</value>
+    </property>
+    <!--<property>-->
+        <!--<name>distr.value.colsNum</name>-->
+        <!--<value>6</value>-->
+        <!--<description> for DistrTblDriver, for Count error formated row </description>-->
+        <!--</property>-->
+    <!--<property>-->
+        <!--<name>distr.skip.index</name>-->
+        <!--<value>2</value>-->
+        <!--<description> for DistrTblDriver, skip distr collumns </description>-->
+        <!--</property>-->
+    <!--<property>-->
+        <!--<name>distr.regular.index</name>-->
+        <!--<value>4</value>-->
+        <!--<description> for DistrTblDriver, indexed collumn need regular to 1 </description>-->
+        <!--</property>-->
+
+    <!--<property>-->
+        <!--<name>distr.online.timesduration.range</name>-->
+        <!--<value>0,600,3600</value>-->
+        <!--<description> for DistrOnlineTimesDuration </description>-->
+        <!--</property>-->
+    <!--<property>-->
+        <!--<name>distr.online.skip.index</name>-->
+        <!--<value>3</value>-->
+        <!--<description> for DistrOnlineTimesDuration </description>-->
+        <!--</property>-->
+</configuration>
