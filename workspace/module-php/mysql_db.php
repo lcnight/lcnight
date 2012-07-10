@@ -1,9 +1,10 @@
 <?php
 class mysql_db {
-    private $host = '';
+    private $host = 'localhost';
     private $user = '';
     private $pwd = '';
-    private $db = '';
+    private $db = 'mysql';
+    private $port = 3306;
 
     private $mysqli = '';
     private $inited = false;
@@ -14,11 +15,20 @@ class mysql_db {
         $end = strpos($db_url, ':');
         $this->user = substr($db_url, $beg, $end - $beg);
         $beg = $end + 1;
-        $end = strpos($db_url, '@', $beg);
+        $end = strrpos($db_url, '@', $beg);
         $this->pwd = substr($db_url, $beg, $end - $beg);
+
         $beg = $end + 1;
-        $end = strpos($db_url, '/', $beg);
-        $this->host = substr($db_url, $beg, $end - $beg);
+        $end = strpos($db_url, ':', $beg);
+        if ($end===false) {
+            $end = strpos($db_url, '/', $beg);
+            $this->host = substr($db_url, $beg, $end - $beg);
+        } else {
+            $this->host = substr($db_url, $beg, $end - $beg);
+            $beg = $end + 1;
+            $end = strpos($db_url, '/', $beg);
+            $this->port = intval(substr($db_url, $beg, $end - $beg));
+        }
 
         $this->db = substr($db_url, $end + 1);
     }
@@ -40,8 +50,31 @@ class mysql_db {
             return true;
         }
 
-        $this->mysqli = @new mysqli($this->host, $this->user, $this->pwd, $this->db);
+        $this->mysqli = @new mysqli($this->host, $this->user, $this->pwd, $this->db, $this->port);
 
+        /* check connection */
+        //if ($this->mysqli->connect_errorno) {
+        if (mysqli_connect_errno()) {
+            printf("Connect failed (%d): %s\n",mysqli_connect_errno(), mysqli_connect_error() );
+            return false;
+            //exit(0);
+        }
+
+        $this->mysqli->query('set names utf8;');
+
+        /* check connection */
+        if ($this->mysqli->connect_errno) {
+            printf("Connect failed: %s\n", $mysqli->connect_error);
+            return false;
+        }
+
+        $this->inited = true;
+        return true;
+    }
+
+    public function utf8connect($h, $u, $p, $dbname, $port, $socket)
+    {
+        $this->mysqli = @new mysqli($h, $u, $p, $dbname, $port, $socket);
         /* check connection */
         //if ($this->mysqli->connect_errorno) {
         if (mysqli_connect_errno()) {
