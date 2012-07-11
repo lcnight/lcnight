@@ -1,0 +1,30 @@
+#! /bin/bash
+
+if [[ $# < 1 ]]; then
+    echo "usage: `basename $0` ip-token"
+    exit
+fi
+cd `cd $(dirname $0); pwd`
+
+PWDSHELL='sshpass -p'
+SSHSHELL='ssh -q'
+
+while read host user pass pubkey port; do
+    if [[ $host =~ ^# || ! $host =~ $1 ]]; then continue; fi
+    echo "$host $user $pass $pubkey $port";
+
+    if [[ $pubkey == 1 ]]; then # use public key login
+        loginShell="$SSHSHELL $user@$host"
+    else # use sshpass login
+        loginShell="$PWDSHELL $pass $SSHSHELL $user@$host"
+    fi
+    break
+done < sshlogin.cfg
+
+echo "$loginShell";
+if [[ $# -gt 1 ]]; then
+    shift 1
+    $loginShell "$@"
+else
+    $loginShell
+fi
