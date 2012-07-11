@@ -6,13 +6,13 @@ define(DEBUG, true);
 // comma separated email receiptor list
 define(Recip, 'lc@taomee.com');
 
-function Alert($msg) {
+function Error($msg) {
     if ($msg == '') { 
         echo nl; return;
     }
-    echo date('Y-m-d H:i:s')." [Alert] ".$msg.nl;
+    echo date('Y-m-d H:i:s')." [Error] ".$msg.nl;
 }
-function Msg($msg) {
+function Info($msg) {
     if ($msg == '') { 
         echo nl; return;
     }
@@ -24,6 +24,7 @@ function Debug($msg) {
     }
     if(DEBUG) echo date('Y-m-d H:i:s')." [Debug] ".$msg.nl;
 }
+
 
 function SendMail($title, $content)
 {
