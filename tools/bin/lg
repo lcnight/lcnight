@@ -19,7 +19,7 @@ while read host user pass pubkey port; do
         loginShell="$PWDSHELL $pass $SSHSHELL $user@$host"
     fi
     break
-done < sshlogin.cfg
+done < lg.cfg
 
 echo "$loginShell";
 if [[ $# -gt 1 ]]; then
