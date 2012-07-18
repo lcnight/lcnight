@@ -1,24 +1,24 @@
 <?php 
 // define new line in environment
-define(nl, "\n");
+define('nl', "\n");
 // run in DEBUG/RELEASE mode
-define(DEBUG, true);
+define('DEBUG', true);
 // comma separated email receiptor list
 define(Recip, 'lc@taomee.com');
 
-function Error($msg) {
+function Error($msg='') {
     if ($msg == '') { 
         echo nl; return;
     }
     echo date('Y-m-d H:i:s')." [Error] ".$msg.nl;
 }
-function Info($msg) {
+function Info($msg='') {
     if ($msg == '') { 
         echo nl; return;
     }
     echo date('Y-m-d H:i:s')." [Info] ".$msg.nl;
 }
-function Debug($msg) {
+function Debug($msg='') {
     if ($msg == '') { 
         echo nl; return;
     }
@@ -29,7 +29,7 @@ function Debug($msg) {
 function SendMail($title, $content)
 {
     $ll = system("echo \"$content\"| mail -s \"$title\" " . Recip, $retval);
-    Msg("return code: $retval($ll)\nsend mail\ntitle: ${title}\nto: ".Recip);
+    Info("return code: $retval($ll)\nsend mail\ntitle: ${title}\nto: ".Recip);
 }
 
 function get_dirfilepat($dir, $pat, &$filesarr) 
@@ -39,7 +39,7 @@ function get_dirfilepat($dir, $pat, &$filesarr)
         if (stristr($filename, $pat)) {
             $filename = "$dir/$filename";
             if (file_used($filename, $pids)) {
-                Msg("$filename used by: $pids");
+                Info("$filename used by: $pids");
                 continue;
             }
             $filesarr[] = $filename;
@@ -57,7 +57,7 @@ function file_used(&$file, &$pids='')
     // 1 : none
     // >1: fatal error
     if ($ret_code > 1) {
-        Msg("System error code: $ret_code, \n\t command: $cmd\n");
+        Info("System error code: $ret_code, \n\t command: $cmd\n");
         exit($ret_code);
     }
 
@@ -84,14 +84,14 @@ function get_num($str)
 
 function bak_file($bak_dir, $bak_flag, $file) 
 {
-    //Msg("dir: $bak_dir\n, flag: $bak_flag\n, file: $file");
+    //Info("dir: $bak_dir\n, flag: $bak_flag\n, file: $file");
     if (!file_exists($bak_dir)) { mkdir($bak_dir); }
 
     $rel_bak_dir = $bak_dir . '/' . $bak_flag;
     if (!file_exists($rel_bak_dir)) { mkdir($rel_bak_dir); }
 
     $basefname = basename($file);
-    Msg("rename($file, $rel_bak_dir/$basefname)");
+    Info("rename($file, $rel_bak_dir/$basefname)");
     return rename($file, $rel_bak_dir.'/'.$basefname);
 }
 
