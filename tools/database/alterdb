@@ -1,19 +1,17 @@
 #! /bin/bash
-host=10.1.1.44
+host=10.1.1.60
 name='root'
 password='ta0mee'
 
-if [ $# -lt 1 ] ; then
-    echo "alterdb <db script file>";
-    exit;
-fi;
+#if [ $# -lt 1 ] ; then
+    #echo "alterdb <db script file>";
+    #exit;
+#fi;
+
 
 echo "db host:$host, name:$name, password:$password";
 for((i=0;i<100;i++)); do
-    echo "index  $i, exec $1 in database: db_newsfeed_$i";
-    echo "exec: mysql -h$host -u$name -p$password --default-character-set=utf8 -Ddb_newsfeed_$i < $1"
-    mysql -u$name -p$password --default-character-set=utf8 -D"db_newsfeed_$i" < "$1"
+    doStr="drop database db_map_$i"
+    mysql -u$name -p$password -Dtest -e "$doStr"
     echo;
-done;
-
-#mysql -ulc -plcta0mee -D"db_newsfeed_$i" < tmp.sql
+done
