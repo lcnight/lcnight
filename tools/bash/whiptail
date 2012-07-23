@@ -1,0 +1,3 @@
+#! /bin/bash
+
+whiptail --msgbox 'hello world' 20 80 
