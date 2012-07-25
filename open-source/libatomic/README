@@ -1,0 +1,69 @@
+atomic project
+===============
+
+A Part of amulet project. exporting from dnprj project.
+
+Website: http://code.google.com/p/amulet/
+Main author: Dai,Nan <dainan13@gmail.com>
+
+atomic project is free software released under the New BSD License
+(see the LICENSE file for details)
+
+
+
+0. History and credits
+----------------------
+
+atomic project is a prealpha version in current.
+
+
+
+1. Download & installation
+--------------------------
+
+The latest development code is available from
+https://amulet.googlecode.com/svn/trunk/libatomic/
+
+
+atomic project for python extension requires a recent version of Python. 
+It should work with Python above 2.3.
+
+
+To install, unpack the atomic project archive, move to the python_ext dir 
+and run ::
+
+  python setup.py install
+
+then you can used it with ::
+
+  import atomic
+  
+  # to using atomic operate
+  # and
+  
+  import atomic_queue
+  
+  # to using atomic queue
+  # or you can 
+  
+  import AtomicQueue
+
+  # to using atomic queue with OOP
+  
+  
+  
+
+2. Documentation
+----------------
+
+Documentation in reStructuredText format is available in the
+doc directory included with the source package.
+
+
+
+3. Help and bug reports
+-----------------------
+
+You can report bugs and send patches to the amulet issue tracker,
+http://code.google.com/p/amulet/issues/list
+
