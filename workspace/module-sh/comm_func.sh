@@ -168,13 +168,16 @@ AbortProcess () {
 }
 
 ###  example commandline parameter parser
-#while getopts vc: opt; do
+#while getopts hvc: opt; do
     #case $opt in
-        #v) echo verbose;;
         #c) echo condition: $OPTARG;;
-        #?) echo question-mark;;
-        #:) echo colon;;
-        #*) echo all;;
+        #v) verbose=1;;
+        #h) Usage;;
+        #?) Usage;;
+        #*) Usage;;
     #esac
 #done
 #shift $(($OPTIND - 1))
+
+# change current directory to absolute path
+#cd `cd $(dirname $0) && pwd`
