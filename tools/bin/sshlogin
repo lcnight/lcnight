@@ -7,8 +7,28 @@ fi
 PWDSHELL='sshpass -p'
 SSHSHELL='ssh -q'
 
-
-echo "$loginShell";
+case $1 in
+    112.148|ad1)  # ads
+    luser=ads; lhost=192.168.112.148;
+    loginShell="$PWDSHELL xxxx $SSHSHELL $luser@$lhost "
+    ;;
+    71.45) # db
+    luser=hadoop; lhost=192.168.71.45;
+    loginShell="$PWDSHELL xxx $SSHSHELL $luser@$lhost "
+    ;;
+    storage)
+    loginShell="$PWDSHELL xxx $SSHSHELL data@192.168.71.36 "
+    ;;
+    *)
+    if [[ $1 =~ 'hadoop' || $1 =~ 'slave' ]]; then
+        echo "login to hadoop@$1";
+        loginShell="$PWDSHELL hadoop@tm@0529 $SSHSHELL hadoop@$1 "
+    else
+        echo "login to hadoop@192.168.$1";
+        loginShell="$PWDSHELL hadoop@tm@0529 $SSHSHELL hadoop@192.168.$1 "
+    fi
+    ;;
+esac
 
 if [[ $# > 1 ]]; then
     shift 1
@@ -16,24 +36,3 @@ if [[ $# > 1 ]]; then
 else
     $loginShell
 fi
-
-#case $1 in
-    #1.103)
-    #loginShell="$SSHSHELL wikisearch@10.1.1.103"
-    #;;
-    #1.44)
-    #loginShell="$SSHSHELL lc@10.1.1.44"
-    #;;
-    #182.40)
-    #loginShell="$SSHSHELL -p58000 kigame@61.155.182.40"
-    #;;
-    #182.41)
-    #loginShell="$SSHSHELL -p58000 kigame@61.155.182.41"
-    #;;
-    #182.42)
-    #loginShell="$SSHSHELL -p58000 kigame@61.155.182.42"
-    #;;
-    #*)
-    #echo 'cannot find host to login'
-    #;;
-#esac
