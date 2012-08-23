@@ -1,0 +1,37 @@
+The following options should be set before network interfaces are configured.
+These settings are designed for the typical router or firewall that will service a network of 256 or more hosts.
+
+----8<----
+#!/bin/bash
+
+# IPv4 tuning
+echo 1 > /proc/sys/net/ipv4/ip_forward                                  # Enable IP forwarding
+echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects                   # Don't accept ICMP redirect
+echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects                     # Don't send ICMP redirect either
+echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route                # Don't accept source routed packets
+echo 1 > /proc/sys/net/ipv4/conf/all/log_martians                       # Log packets dropped by rp_filter
+echo 2 > /proc/sys/net/ipv4/ip_dynaddr                                  # Permit and log dynamic source rewriting (required for FW)
+echo 0 > /proc/sys/net/ipv4/tcp_ecn                                     # Disable Explicit Congestion Notification
+echo 1 > /proc/sys/net/ipv4/conf/all/arp_announce                       # Prefer local subnet IP to respond for ARP source
+echo 2 > /proc/sys/net/ipv4/conf/all/arp_ignore                         # Ignore ARP unless its on and from the local subnet
+echo 4096 > /proc/sys/net/netfilter/nf_conntrack_expect_max             # Increases the default conntrack expect from 256 to 4096
+echo 1 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_be_liberal 	# Don't use TCP window scale as a determinant for packet validity
+
+# ARP table tuning
+echo 2048  > /proc/sys/net/ipv4/neigh/default/gc_thresh1                # ARP table minimum before GC
+echo 8192  > /proc/sys/net/ipv4/neigh/default/gc_thresh2                # ARP table soft maxium
+echo 16384 > /proc/sys/net/ipv4/neigh/default/gc_thresh3                # ARP table hard maxium
+echo 300   > /proc/sys/net/ipv4/neigh/default/base_reachable_time       # ARP cache valid minimum of between 150 and 450 seconds (random)
+
+# Multicast tuning
+echo 128 > /proc/sys/net/ipv4/igmp_max_memberships                      # IGMP max member groups
+
+# IPv6 tuning
+echo 1 > /proc/sys/net/ipv6/conf/all/forwarding                         # Enable IPv6 forwarding
+echo 0 > /proc/sys/net/ipv6/conf/all/accept_ra                          # Don't accept IPv6 RA from other hosts (rogue IPv6 routers)
+
+# Blackhole RFC1918 address space to avoid leaking
+ip route add blackhole 192.168.0.0/16
+ip route add blackhole 172.16.0.0/12
+ip route add blackhole 10.0.0.0/8
+----8<---

@@ -16,7 +16,6 @@ Debug () {
         echo -e "[`date '+%F %T'`] $*";
     fi
 }
-
 Info () {
     if [[ $# == 0 ]]; then echo; return; fi
 
@@ -54,21 +53,6 @@ get_prev_days()
     local next_tmp=`date -d "$day_tmp $DAYS days ago"`
     echo `date -d "$next_tmp" +%Y%m%d`
 }
-get_prev_months()
-{ # YYYYMM n
-    if [[ $# < 1 || ${#1} != 6 || $1 =~ [^0-9] || $2 =~ [^0-9] ]]; then return 0; fi
-
-    if [[ $2 == "" ]] ; then
-        local prev=1
-    else
-        local prev=$2
-    fi
-
-    echo `date -d "${1}01 $prev months ago" '+%Y%m'`
-}
-#get_prev_months 201206
-#get_prev_months 201206 3
-
 get_next_days()
 { # input: 120323 / 20120323
     local DAYS=1
@@ -84,21 +68,69 @@ get_next_days()
 #get_prev_days 20120323
 #get_prev_days 120323 9
 #get_next_days 20120323 10
-get_prev_months ()
+
+# check if one day is end of month
+is_month_end() {
+    if [[ $# < 1 || ${#1} != 8 || $1 =~ [^0-9] ]]; then return 0; fi
+    local daystr="$1 0:0:0"
+    local dayOfMon=`date -d "$daystr 1 day" +%d`
+    if [[ $dayOfMon == 01 ]]; then 
+        local ym=`date -d "$daystr" +%Y%m`
+        echo $ym;
+    else echo 0; fi
+}
+#is_month_end 20120830
+#is_month_end 20120831
+
+# check if one day is end of quarter
+is_quarter_end () {
+    if [[ $# < 1 || ${#1} != 8 || $1 =~ [^0-9] ]]; then return 0; fi
+    local daystr="$1 0:0:0"
+    local md=`date -d "$daystr 1 day" +%m%d`
+    local year=`date -d "$daystr" +%Y`
+    case $md in 
+        0101) echo ${year}10 ;;
+        0401) echo ${year}01;; 
+        0701) echo ${year}04;; 
+        1001) echo ${year}07;; 
+        *) echo 0;;
+    esac
+}
+#is_quarter_end 20120903
+#is_quarter_end 20120930
+get_quarter_paths() { 
+    # month(YYYYMM) pathprefix(/path/to/) [pathsuffix(suffix)]
+    # example: 201207 /user/lc/ads/month/ pvuv_raw
+    if [[ $# -lt 2 || $1 =~ [^0-9] || ${#1} != 6 ]]; then return; fi
+
+    local quarterStartMonth=$1
+    local year=${quarterStartMonth:0:4}
+    local YearPre=$2/$year
+    case $quarterStartMonth in
+        *01) QRAWs="${YearPre}01/$3 ${YearPre}02/$3 ${YearPre}03/$3" ;;
+        *04) QRAWs="${YearPre}04/$3 ${YearPre}05/$3 ${YearPre}06/$3" ;;
+        *07) QRAWs="${YearPre}07/$3 ${YearPre}08/$3 ${YearPre}09/$3" ;;
+        *10) QRAWs="${YearPre}10/$3 ${YearPre}11/$3 ${YearPre}12/$3" ;;
+        *) return ;;
+    esac
+    echo $QRAWs
+}
+#get_quarter_paths 201207 /user/lc/ads/month/ pvuv_raw
+
+get_prev_months()
 { # YYYYMM n
-    if [[ $# < 1 || ${#1} != 6 || $1 =~ [^0-9] ]]; then return 0; fi
+    if [[ $# < 1 || ${#1} != 6 || $1 =~ [^0-9] || $2 =~ [^0-9] ]]; then return 0; fi
 
     if [[ $2 == "" ]] ; then
-        next=1
+        local prev=1
     else
-        next=$2
+        local prev=$2
     fi
 
-    echo `date -d "${1}01 $next months ago" '+%Y%m'`
+    echo `date -d "${1}01 $prev months ago" '+%Y%m'`
 }
-#get_next_months 201206
-#xxx=`get_next_months 201206 3`
-#echo $xxx
+#get_prev_months 201206
+#get_prev_months 201206 3
 
 get_next_months ()
 { # YYYYMM n
@@ -112,6 +144,8 @@ get_next_months ()
 
     echo `date -d "${1}01 $next months" '+%Y%m'`
 }
+#get_next_months 201206
+#xxx=`get_next_months 201206 3`
 
 date2stamp ()
 {
@@ -167,6 +201,34 @@ AbortProcess () {
    exit -1
 }
 
+############ hadoop operational functions ############
+dfs_purge() { # pathpattern confparams
+    local dirpath=$1
+    local confParams=''
+    if [[ $# -gt 2 ]]; then
+        confParams="$2"
+    fi
+    $HADOOP_FS $confParams -rmr $dirpath
+}
+dfs_exists() { # path confparams
+    local pathpattern=$1
+    local confParams=''
+    if [[ $# -gt 1 ]]; then
+        confParams="$2"
+    fi
+    if [[ $dryrun == 0 ]]; then
+        $HADOOP_FS $confParams -test -e $pathpattern;
+        if [[ $? == 0 ]]; then echo 1; return; fi
+
+        local numcnt=`$HADOOP_FS $confParams -ls $pathpattern 2>/dev/null | wc -l`;
+        if [[ $numcnt -gt 0 ]]; then 
+            echo $numcnt;  
+        else echo 0; fi
+
+    else echo 1; fi
+}
+############ hadoop operational functions ############
+
 ###  example commandline parameter parser
 #while getopts hvc: opt; do
     #case $opt in
@@ -179,5 +241,3 @@ AbortProcess () {
 #done
 #shift $(($OPTIND - 1))
 
-# change current directory to absolute path
-#cd `cd $(dirname $0) && pwd`
