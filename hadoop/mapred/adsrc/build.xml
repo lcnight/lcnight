@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project name="AdsMon" default="build" basedir=".">
+    <!-- global properties  -->
+    <property name="src" location="src"/>
+    <property name="conf" location="conf"/>
+    <property name="classes" location="classes"/>
+    <property name="build" location="build"/>
+    <property name="jarName" location="${build}/${ant.project.name}.jar"/>
+    <property name="hadooplib" location="/home/lc/hadoop/hadoop-1.0.1"/>
+
+    <path id="classpath">
+        <fileset dir="${hadooplib}" includes="hadoop-*.jar"/>
+        <fileset dir="${hadooplib}" includes="lib/*.jar"/>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${classes}"/>
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${classes}" 
+            includes="**/*.java" excludes="**/test.java"
+            classpathref="classpath" includeantruntime="false"
+            debug="true" debuglevel="source,lines,vars"/>
+    </target>
+    <target name="package" depends="compile">
+        <jar destfile="${jarName}" basedir="${classes}">
+        </jar>
+    </target>
+
+    <target name='build' depends="package">
+        <copy todir="${build}" preservelastmodified='true'>
+            <!--<fileset dir="." includes='*.jar'/>-->
+            <fileset dir="." includes='conf/*'/>
+            <fileset dir="${src}" includes='**/*.sh'/>
+            <fileset dir="${src}" includes='**/*.py'/>
+        </copy>
+        <chmod dir="${build}" perm="+x" 
+            includes="**/*.sh **/*.py">
+        </chmod>
+    </target>
+
+    <target name="clean">
+        <delete dir="${classes}"/>
+        <delete dir="${build}"/>
+    </target>
+
+    <target name='test'>
+        <property environment="env"/>
+
+        <echo message="hell ${env.PATH}"/>
+        <echo message="${build} ${line.separator} hell"/>
+
+        <exec executable="chmod" dir="logs">
+            <arg value="+x"/>
+            <arg value="*.log"/>
+        </exec>
+    </target>
+</project>

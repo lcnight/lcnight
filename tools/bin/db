@@ -15,7 +15,7 @@ pass=ta0mee
 conn_str="mysql -h$host -u$user " 
 echo "connecting : $conn_str ..."
 
-db=${2:-"mysql"}
+db=${2:-"test"}
 if [[ $#  -gt 2 ]]; then
     shift 2
     $conn_str -p$pass $db -e "$@"
@@ -23,3 +23,7 @@ else
     conn_str+=" -p$pass $db --auto-rehash --default-character-set='utf8' --prompt='\u@\d:\h mysql>'"
     eval $conn_str
 fi
+
+#db60 [root:ta0mee]
+#% pwd@60
+#10.1.1.60 ta0mee
