@@ -1,0 +1,6 @@
+dfsMerge
+===========================================================
+
+merge/append  files to hdfs
+
+support zookeeper write lock
