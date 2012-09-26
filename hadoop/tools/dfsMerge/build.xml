@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+
+<project name="dfsMerge" default="build" basedir=".">
+    <!-- global properties  -->
+    <property name="src" location="src"/>
+    <property name="conf" location="conf"/>
+    <property name="classes" location="classes"/>
+    <property name="build" location="work"/>
+    <property name="JarName" location="${build}/${ant.project.name}.jar"/>
+    <property name="lib" location="/home/lc/hadoop/hadoop-1.0.1"/>
+    <property name="zklib" location="/home/lc/hadoop/repo/zookeeper"/>
+    <path id="classpath">
+        <fileset dir="${lib}" includes="hadoop-*.jar"/>
+        <fileset dir="${lib}" includes="lib/*.jar"/>
+        <fileset dir="${zklib}" includes="*.jar"/>
+        <fileset dir="${src}" includes="*.jar"/>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${classes}"/>
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${classes}"
+            classpathref="classpath" includeantruntime="false"
+            debug="true" debuglevel="source,lines,vars"/>
+    </target>
+
+    <target name="package" depends="compile">
+        <jar destfile="${JarName}" basedir="${classes}" />
+    </target>
+
+    <target name='build' depends="package">
+        <mkdir dir="${build}" />
+        <copy todir="${build}" preservelastmodified='true'>
+            <fileset dir="." includes='conf/*'/>
+            <fileset dir="${src}" includes='*.jar'/>
+            <fileset dir="${src}" includes='**/*.sh'/>
+            <fileset dir="${src}" includes='**/*.py'/>
+        </copy>
+        <chmod dir="${build}" perm="+x" 
+            includes="**/*.sh **/*.py">
+        </chmod>
+    </target>
+
+    <target name="clean">
+        <delete dir="${classes}"/>
+        <delete dir="${build}"/>
+    </target>
+
+    <target name='test'>
+        <!--<property name='envPath' value="${env.PATH}"/>-->
+        <!--<echo message="hell ${envPath}"/>-->
+        <property environment="env"/>
+        <echo message="hell ${env.PATH}"/>
+
+        <echo message="${build} ${line.separator} hell"/>
+
+        <exec executable="chmod" dir="logs">
+            <arg value="+x"/>
+            <arg value="*.log"/>
+        </exec>
+    </target>
+</project>
