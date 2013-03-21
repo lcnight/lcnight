@@ -3,7 +3,7 @@
 
 ## common mail module
 def Usage():
-    print '''Usage: mail.py <subject> <content>
+    print '''Usage: mail.py <subject> <content> [ addr list (sep by ,) ]
     content in text/html MIME format
     '''
     sys.exit(0)
@@ -31,8 +31,12 @@ Subject: [%s] monitor mail: %s
 monitor time: %s
 """ %(monitor_time, mailsubject, mailcontent, monitor_time)
 
-sender = 'monitor@taomee.com'
-receivers = ['lc@taomee.com', 'lc@taomee.com']
+sender = 'itl_alarm@taomee.com'
+receivers = ['lc@taomee.com']
+if len(sys.argv) > 3 :
+    addrlist=sys.argv[3]
+    receivers = addrlist.split(',')
+
 def sendmail():
     try:
         smtpObj = smtplib.SMTP('mail.taomee.com')
