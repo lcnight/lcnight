@@ -52,7 +52,7 @@ while (<PROC>) {
 }
 
 #my @display_values = qw/ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts/;
-my @display_values = qw/InSegs InErrs OutSegs RetransSegs/;
+my @display_values = qw/ActiveOpens PassiveOpens InSegs InErrs OutSegs RetransSegs/;
 my $width = 0;
 foreach my $i (@display_values) {
     defined($tcp_values{$i}) or die "missing required tcp value $i in /proc/net/snmp\n";
