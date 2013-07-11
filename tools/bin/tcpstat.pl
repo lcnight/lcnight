@@ -24,6 +24,10 @@
 
 use strict;
 use warnings;
+#use Time::Format;
+#use Date::Parse;
+#use POSIX qw/tzset/;
+use Time::Local;
 
 select(STDOUT); $| = 1;     # make unbuffered
 
@@ -53,13 +57,12 @@ while (<PROC>) {
 
 #my @display_values = qw/ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts/;
 my @display_values = qw/ActiveOpens PassiveOpens InSegs InErrs OutSegs RetransSegs/;
-my $width = 0;
 foreach my $i (@display_values) {
     defined($tcp_values{$i}) or die "missing required tcp value $i in /proc/net/snmp\n";
 }
 
 my %prev_stats = map { $_ => 0 } @tcp_values;
-
+printf "%11s ", 'timestamp';
 foreach my $i (@display_values) {
     printf "%11s ", $i;
 }
@@ -88,6 +91,8 @@ while (1) {
     close(PROC);
 
     unless ($suppress_line) {
+        my $curtime = time;
+        printf "%11s ",  $curtime;
         foreach my $i (@display_values) {
             printf "%11s ", $cur_stats{$i} - $prev_stats{$i};
         }
